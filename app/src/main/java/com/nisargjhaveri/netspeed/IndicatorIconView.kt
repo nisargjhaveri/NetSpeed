@@ -24,8 +24,35 @@ class IndicatorIconView : RelativeLayout {
         inflate(context, R.layout.indicator_icon_layout, this)
     }
 
-    public fun setSpeed(speed: Long) {
-        findViewById<TextView>(R.id.speed_value).setText((speed / 1000).toString())
+    fun setSpeed(speed: Long) {
+        val speedValue: String
+        val speedUnit: String
+
+        when {
+//            speed < 1000 -> {
+//                speedValue = speed.toString()
+//                speedUnit = "B/s"
+//            }
+            speed < 1000000 -> {
+                speedValue = (speed / 1000).toString()
+                speedUnit = "KB/s"
+            }
+            speed < 10000000 -> {
+                speedValue = (speed / 1000000.0).toString()
+                speedUnit = "MB/s"
+            }
+            speed < 1000000000 -> {
+                speedValue = (speed / 1000000).toString()
+                speedUnit = "MB/s"
+            }
+            else -> {
+                speedValue = "-"
+                speedUnit = "-"
+            }
+        }
+
+        findViewById<TextView>(R.id.speed_value).setText(speedValue)
+        findViewById<TextView>(R.id.speed_unit).setText(speedUnit)
     }
 
 }

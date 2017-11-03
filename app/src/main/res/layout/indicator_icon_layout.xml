@@ -13,11 +13,11 @@
         android:fontFamily="sans-serif-condensed"
         android:includeFontPadding="false"
         android:maxLines="1"
-        android:text="245"
         android:textAlignment="center"
         android:textColor="@android:color/white"
         android:textSize="65dp"
-        android:textStyle="bold" />
+        android:textStyle="bold"
+        android:text="-" />
 
     <TextView
         android:layout_width="match_parent"
@@ -26,9 +26,9 @@
         android:layout_below="@+id/speed_value"
         android:layout_alignParentBottom="true"
         android:textAlignment="center"
-        android:textSize="42dp"
+        android:textSize="41dp"
         android:textStyle="bold"
         android:textColor="@android:color/white"
         android:includeFontPadding="false"
-        android:text="KB/s"/>
+        android:text="-"/>
 </RelativeLayout>
