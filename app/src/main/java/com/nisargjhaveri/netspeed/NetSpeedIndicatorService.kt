@@ -23,7 +23,7 @@ class NetSpeedIndicatorService : Service() {
         Bitmap.createBitmap(
                 mIconView.measuredWidth,
                 mIconView.measuredHeight,
-                Bitmap.Config.ARGB_8888
+                Bitmap.Config.ALPHA_8
         )
     }
     private val mIconCanvas: Canvas by lazy {
@@ -54,9 +54,7 @@ class NetSpeedIndicatorService : Service() {
                         val currentUsage = (TrafficStats::getTotalRxBytes)() + (TrafficStats::getTotalTxBytes)()
                         val currentTime = System.currentTimeMillis()
 
-                        val speed = (currentUsage - mLastUsage) * 1000 / (currentTime - mLastTime)
-
-                        updateNotification(speed)
+                        updateNotification((currentUsage  - mLastUsage) * 1000 / (currentTime - mLastTime))
 
                         mLastUsage = currentUsage
                         mLastTime = currentTime
@@ -95,7 +93,9 @@ class NetSpeedIndicatorService : Service() {
     }
 
     private fun updateNotification(speed: Long) {
-        mNotificationBuilder.setSmallIcon(getIndicatorIcon(speed))
+        mNotificationBuilder
+                .setSmallIcon(getIndicatorIcon(speed))
+                .setPriority(Notification.PRIORITY_MAX)
         mNotificationManager .notify(NOTIFICATION_ID, mNotificationBuilder.build())
     }
 
@@ -109,6 +109,8 @@ class NetSpeedIndicatorService : Service() {
     }
 
     private fun getIndicatorIcon(speed: Long): Icon {
+        println(speed)
+
         mIconView.setSpeed(speed)
 
         mIconCanvas.drawColor(Color.TRANSPARENT, PorterDuff.Mode.CLEAR)

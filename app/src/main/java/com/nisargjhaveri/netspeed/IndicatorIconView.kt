@@ -7,6 +7,13 @@ import android.widget.TextView
 
 
 class IndicatorIconView : RelativeLayout {
+    private val mSpeedValue by lazy {
+        findViewById<TextView>(R.id.speed_value)
+    }
+
+    private val mSpeedUnit by lazy {
+        findViewById<TextView>(R.id.speed_unit)
+    }
 
     constructor(context: Context) : super(context) {
         init(null, 0)
@@ -21,7 +28,10 @@ class IndicatorIconView : RelativeLayout {
     }
 
     private fun init(attrs: AttributeSet?, defStyle: Int) {
-        inflate(context, R.layout.indicator_icon_layout, this)
+        val inflate = inflate(context, R.layout.indicator_icon_layout, this)
+
+        mSpeedValue.paint.isAntiAlias = true
+        mSpeedUnit.paint.isAntiAlias = true
     }
 
     fun setSpeed(speed: Long) {
@@ -29,30 +39,33 @@ class IndicatorIconView : RelativeLayout {
         val speedUnit: String
 
         when {
-//            speed < 1000 -> {
-//                speedValue = speed.toString()
-//                speedUnit = "B/s"
-//            }
             speed < 1000000 -> {
                 speedValue = (speed / 1000).toString()
-                speedUnit = "KB/s"
+                speedUnit = context.getString(R.string.kbps)
             }
-            speed < 10000000 -> {
-                speedValue = (speed / 1000000.0).toString()
-                speedUnit = "MB/s"
-            }
-            speed < 1000000000 -> {
-                speedValue = (speed / 1000000).toString()
-                speedUnit = "MB/s"
+            speed >= 1000000 -> {
+                speedUnit = context.getString(R.string.mbps)
+
+                when {
+                    speed < 10000000 -> {
+                        speedValue = "%.1f".format(speed / 1000000.0)
+                    }
+                    speed < 100000000 -> {
+                        speedValue = (speed / 1000000).toString()
+                    }
+                    else -> {
+                        speedValue = context.getString(R.string.plus99)
+                    }
+                }
             }
             else -> {
-                speedValue = "-"
-                speedUnit = "-"
+                speedValue = context.getString(R.string.dash)
+                speedUnit = context.getString(R.string.dash)
             }
         }
 
-        findViewById<TextView>(R.id.speed_value).setText(speedValue)
-        findViewById<TextView>(R.id.speed_unit).setText(speedUnit)
+        mSpeedValue.setText(speedValue)
+        mSpeedUnit.setText(speedUnit)
     }
 
 }
