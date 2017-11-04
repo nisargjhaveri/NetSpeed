@@ -1,0 +1,7 @@
+<resources>
+    <string name="app_name">NetSpeed</string>
+    <string name="kbps">KB/s</string>
+    <string name="mbps">MB/s</string>
+    <string name="plus99">99+</string>
+    <string name="dash">-</string>
+</resources>
