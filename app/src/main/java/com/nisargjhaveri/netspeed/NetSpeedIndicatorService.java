@@ -8,16 +8,17 @@ import android.content.Intent;
 import android.graphics.Bitmap;
 import android.graphics.Canvas;
 import android.graphics.Color;
+import android.graphics.Paint;
 import android.graphics.PorterDuff;
+import android.graphics.Typeface;
 import android.graphics.drawable.Icon;
 import android.net.TrafficStats;
 import android.os.IBinder;
-import android.view.View;
 
 public final class NetSpeedIndicatorService extends Service {
     private static final int NOTIFICATION_ID = 1;
 
-    private IndicatorIconView mIconView;
+    private Paint mIconSpeedPaint, mIconUnitPaint;
     private Bitmap mIconBitmap;
     private Canvas mIconCanvas;
 
@@ -48,7 +49,7 @@ public final class NetSpeedIndicatorService extends Service {
     public void onCreate() {
         super.onCreate();
 
-        setupIndicatorIconView();
+        setupIndicatorIconGenerator();
         setupNotifications();
 
         mThread = setupTimerThread();
@@ -60,13 +61,23 @@ public final class NetSpeedIndicatorService extends Service {
         mThread.start();
     }
 
-    private void updateNotification(long speed) {
+    private void updateNotification() {
+        long currentUsage = TrafficStats.getTotalRxBytes() + TrafficStats.getTotalTxBytes();
+        long currentTime = System.currentTimeMillis();
+
         mNotificationBuilder
-                .setSmallIcon(getIndicatorIcon(speed))
+                .setSmallIcon(
+                        getIndicatorIcon(
+                                (currentUsage - mLastUsage) * 1000 / (currentTime - mLastTime)
+                        )
+                )
                 .setPriority(Notification.PRIORITY_MAX);
 
         mNotificationManager
                 .notify(NOTIFICATION_ID, mNotificationBuilder.build());
+
+        mLastUsage = currentUsage;
+        mLastTime = currentTime;
     }
 
     private void setupNotifications() {
@@ -78,20 +89,21 @@ public final class NetSpeedIndicatorService extends Service {
                 .setLocalOnly(true);
     }
 
-    private void setupIndicatorIconView() {
-        mIconView = new IndicatorIconView(this);
+    private void setupIndicatorIconGenerator() {
+        mIconSpeedPaint = new Paint();
+        mIconSpeedPaint.setAntiAlias(true);
+        mIconSpeedPaint.setTextSize(65);
+        mIconSpeedPaint.setTextAlign(Paint.Align.CENTER);
+        mIconSpeedPaint.setTypeface(Typeface.create("sans-serif-condensed", Typeface.BOLD));
 
-        mIconView.measure(
-                View.MeasureSpec.makeMeasureSpec(0, View.MeasureSpec.UNSPECIFIED),
-                View.MeasureSpec.makeMeasureSpec(0, View.MeasureSpec.UNSPECIFIED)
-        );
-        mIconView.layout(0, 0, mIconView.getMeasuredWidth(), mIconView.getMeasuredHeight());
+        mIconUnitPaint = new Paint();
+        mIconUnitPaint.setAntiAlias(true);
+        mIconUnitPaint.setTextSize(40);
+        mIconUnitPaint.setTextAlign(Paint.Align.CENTER);
+        mIconUnitPaint.setTypeface(Typeface.DEFAULT_BOLD);
 
-        mIconBitmap = Bitmap.createBitmap(
-                mIconView.getMeasuredWidth(),
-                mIconView.getMeasuredHeight(),
-                Bitmap.Config.ALPHA_8
-        );
+        mIconBitmap = Bitmap.createBitmap(96, 96, Bitmap.Config.ALPHA_8);
+
         mIconCanvas = new Canvas(mIconBitmap);
     }
 
@@ -105,14 +117,7 @@ public final class NetSpeedIndicatorService extends Service {
                 try {
                     while (!isInterrupted()) {
                         Thread.sleep(1000);
-
-                        currentUsage = TrafficStats.getTotalRxBytes() + TrafficStats.getTotalTxBytes();
-                        currentTime = System.currentTimeMillis();
-
-                        updateNotification((currentUsage - mLastUsage) * 1000 / (currentTime - mLastTime));
-
-                        mLastUsage = currentUsage;
-                        mLastTime = currentTime;
+                        updateNotification();
                     }
                 } catch (InterruptedException e) {}
             }
@@ -120,12 +125,30 @@ public final class NetSpeedIndicatorService extends Service {
     }
 
     private Icon getIndicatorIcon(long speed) {
-        System.out.println(speed);
+        String speedValue;
+        String speedUnit;
 
-        mIconView.setSpeed(speed);
+        if (speed < 1000000) {
+            speedUnit = getString(R.string.kbps);
+            speedValue = String.valueOf(speed / 1000);
+        } else if (speed >= 1000000) {
+            speedUnit = getString(R.string.mbps);
+
+            if (speed < 10000000) {
+                speedValue = String.format("%.1f", speed / 1000000.0);
+            } else if (speed < 100000000) {
+                speedValue = String.valueOf(speed / 1000000);
+            } else {
+                speedValue = getString(R.string.plus99);
+            }
+        } else {
+            speedValue = getString(R.string.dash);
+            speedUnit = getString(R.string.dash);
+        }
 
         mIconCanvas.drawColor(Color.TRANSPARENT, PorterDuff.Mode.CLEAR);
-        mIconView.draw(mIconCanvas);
+        mIconCanvas.drawText(speedValue, 48, 50, mIconSpeedPaint);
+        mIconCanvas.drawText(speedUnit, 48, 95, mIconUnitPaint);
 
         return Icon.createWithBitmap(mIconBitmap);
     }
