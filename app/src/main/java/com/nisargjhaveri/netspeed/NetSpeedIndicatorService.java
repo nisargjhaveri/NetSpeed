@@ -13,6 +13,7 @@ import android.graphics.PorterDuff;
 import android.graphics.Typeface;
 import android.graphics.drawable.Icon;
 import android.net.TrafficStats;
+import android.os.Handler;
 import android.os.IBinder;
 
 public final class NetSpeedIndicatorService extends Service {
@@ -28,7 +29,8 @@ public final class NetSpeedIndicatorService extends Service {
     private long mLastUsage = 0;
     private long mLastTime = 0;
 
-    private Thread mThread;
+    final private Handler mHandler = new Handler();
+    private boolean mStopHandler = false;
 
     @Override
     public IBinder onBind(Intent intent) {
@@ -38,11 +40,7 @@ public final class NetSpeedIndicatorService extends Service {
     public void onDestroy() {
         super.onDestroy();
 
-        try {
-            mThread.interrupt();
-            mThread.join();
-        } catch (InterruptedException e) {}
-
+        mStopHandler = true;
         stopForeground(true);
     }
 
@@ -52,13 +50,20 @@ public final class NetSpeedIndicatorService extends Service {
         setupIndicatorIconGenerator();
         setupNotifications();
 
-        mThread = setupTimerThread();
-
         mLastUsage = TrafficStats.getTotalRxBytes() +TrafficStats.getTotalTxBytes();
         mLastTime = System.currentTimeMillis();
 
         startForeground(NOTIFICATION_ID, mNotificationBuilder.build());
-        mThread.start();
+
+        mHandler.postDelayed(new Runnable() {
+            @Override
+            public void run() {
+                if (mStopHandler) return;
+
+                updateNotification();
+                mHandler.postDelayed(this, 1000);
+            }
+        }, 1000);
     }
 
     private void updateNotification() {
@@ -107,23 +112,6 @@ public final class NetSpeedIndicatorService extends Service {
         mIconCanvas = new Canvas(mIconBitmap);
     }
 
-    private Thread setupTimerThread() {
-        // Setup background thread
-        return new Thread() {
-            long currentUsage, currentTime;
-
-            @Override
-            public void run() {
-                try {
-                    while (!isInterrupted()) {
-                        Thread.sleep(1000);
-                        updateNotification();
-                    }
-                } catch (InterruptedException e) {}
-            }
-        };
-    }
-
     private Icon getIndicatorIcon(long speed) {
         String speedValue;
         String speedUnit;
@@ -147,7 +135,7 @@ public final class NetSpeedIndicatorService extends Service {
         }
 
         mIconCanvas.drawColor(Color.TRANSPARENT, PorterDuff.Mode.CLEAR);
-        mIconCanvas.drawText(speedValue, 48, 50, mIconSpeedPaint);
+        mIconCanvas.drawText(speedValue, 48, 52, mIconSpeedPaint);
         mIconCanvas.drawText(speedUnit, 48, 95, mIconUnitPaint);
 
         return Icon.createWithBitmap(mIconBitmap);
