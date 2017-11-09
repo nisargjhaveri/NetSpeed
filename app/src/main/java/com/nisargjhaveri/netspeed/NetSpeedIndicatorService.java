@@ -3,8 +3,10 @@ package com.nisargjhaveri.netspeed;
 import android.app.Notification;
 import android.app.NotificationManager;
 import android.app.Service;
+import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
+import android.content.IntentFilter;
 import android.graphics.Bitmap;
 import android.graphics.Canvas;
 import android.graphics.Color;
@@ -30,7 +32,30 @@ public final class NetSpeedIndicatorService extends Service {
     private long mLastTime = 0;
 
     final private Handler mHandler = new Handler();
-    private boolean mStopHandler = false;
+    private boolean mNotificationPaused = true;
+
+    private Runnable mHandlerRunnable = new Runnable() {
+        @Override
+        public void run() {
+            updateNotification();
+            mHandler.postDelayed(this, 1000);
+        }
+    };
+
+    private BroadcastReceiver mScreenBroadcastReceiver = new BroadcastReceiver() {
+        @Override
+        public void onReceive(Context context, Intent intent) {
+            if (intent == null || intent.getAction() == null) {
+                return;
+            }
+
+            if (intent.getAction().equals(Intent.ACTION_SCREEN_OFF)) {
+                pauseNotifying();
+            } else if (intent.getAction().equals(Intent.ACTION_SCREEN_ON)) {
+                startNotifying();
+            }
+        }
+    };
 
     @Override
     public IBinder onBind(Intent intent) {
@@ -40,7 +65,9 @@ public final class NetSpeedIndicatorService extends Service {
     public void onDestroy() {
         super.onDestroy();
 
-        mStopHandler = true;
+        pauseNotifying();
+        unregisterReceiver(mScreenBroadcastReceiver);
+
         stopForeground(true);
     }
 
@@ -55,15 +82,24 @@ public final class NetSpeedIndicatorService extends Service {
 
         startForeground(NOTIFICATION_ID, mNotificationBuilder.build());
 
-        mHandler.postDelayed(new Runnable() {
-            @Override
-            public void run() {
-                if (mStopHandler) return;
+        startNotifying();
 
-                updateNotification();
-                mHandler.postDelayed(this, 1000);
-            }
-        }, 1000);
+        IntentFilter screenIntent = new IntentFilter();
+        screenIntent.addAction(Intent.ACTION_SCREEN_ON);
+        screenIntent.addAction(Intent.ACTION_SCREEN_OFF);
+        registerReceiver(mScreenBroadcastReceiver, screenIntent);
+    }
+
+    public void pauseNotifying() {
+        mHandler.removeCallbacks(mHandlerRunnable);
+        mNotificationPaused = true;
+    }
+
+    public void startNotifying() {
+        if (!mNotificationPaused) return;
+
+        mHandler.post(mHandlerRunnable);
+        mNotificationPaused = false;
     }
 
     private void updateNotification() {
