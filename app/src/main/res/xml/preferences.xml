@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="utf-8"?>
+<PreferenceScreen xmlns:android="http://schemas.android.com/apk/res/android">
+
+    <SwitchPreference
+        android:key="indicatorEnabled"
+        android:title="Enable indicator"
+        android:summary="Show NetSpeed indicator in the status bar"
+        android:disableDependentsState="false"
+        android:defaultValue="true" />
+
+    <PreferenceCategory
+        android:dependency="indicatorEnabled"
+        android:title="Options">
+
+        <SwitchPreference
+            android:key="startOnBoot"
+            android:title="Start on boot"
+            android:summary="Start NetSpeed indicator on boot"
+            android:summaryOn="The indicator will be started on boot"
+            android:summaryOff="The indicator will not be started on boot"
+            android:defaultValue="true" />
+    </PreferenceCategory>
+
+</PreferenceScreen>
