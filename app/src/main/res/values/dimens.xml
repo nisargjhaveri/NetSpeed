@@ -5,4 +5,6 @@
 
     <dimen name="notificationIconHeight">18dp</dimen>
     <dimen name="notificationIconWidth">18dp</dimen>
+
+    <dimen name="mainActivityPadding">16dp</dimen>
 </resources>

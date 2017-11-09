@@ -9,11 +9,10 @@ public final class MainActivity extends AppCompatActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        setContentView(R.layout.main_activity_layout);
 
         Intent intent = new Intent(this, NetSpeedIndicatorService.class);
         startService(intent);
-
-        finish();
     }
 
 }
