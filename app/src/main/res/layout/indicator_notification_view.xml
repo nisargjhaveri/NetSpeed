@@ -11,4 +11,13 @@
         android:layout_centerVertical="true"
         android:id="@+id/notificationIcon" />
 
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="NetSpeed Indicator! :D"
+        android:layout_centerVertical="true"
+        android:layout_toEndOf="@id/notificationIcon"
+        android:layout_marginStart="@dimen/notificationTextMarginStart"
+        android:id="@+id/notificationText"/>
+
 </RelativeLayout>
