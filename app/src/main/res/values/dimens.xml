@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <dimen name="notificationPaddingStart">16dp</dimen>
+    <dimen name="notificationPaddingEnd">16dp</dimen>
+
+    <dimen name="notificationIconHeight">18dp</dimen>
+    <dimen name="notificationIconWidth">18dp</dimen>
+</resources>

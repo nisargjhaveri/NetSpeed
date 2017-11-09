@@ -17,6 +17,7 @@ import android.graphics.drawable.Icon;
 import android.net.TrafficStats;
 import android.os.Handler;
 import android.os.IBinder;
+import android.widget.RemoteViews;
 
 public final class NetSpeedIndicatorService extends Service {
     private static final int NOTIFICATION_ID = 1;
@@ -111,8 +112,7 @@ public final class NetSpeedIndicatorService extends Service {
                         getIndicatorIcon(
                                 (currentUsage - mLastUsage) * 1000 / (currentTime - mLastTime)
                         )
-                )
-                .setPriority(Notification.PRIORITY_MAX);
+                );
 
         mNotificationManager
                 .notify(NOTIFICATION_ID, mNotificationBuilder.build());
@@ -122,10 +122,15 @@ public final class NetSpeedIndicatorService extends Service {
     }
 
     private void setupNotifications() {
+        RemoteViews contentView = new RemoteViews(getPackageName(), R.layout.indicator_notification_view);
+        contentView.setImageViewBitmap(R.id.notificationIcon, mIconBitmap);
+
         mNotificationManager = (NotificationManager)getSystemService(Context.NOTIFICATION_SERVICE);
         mNotificationBuilder = new Notification.Builder(this)
                 .setSmallIcon(getIndicatorIcon(0))
                 .setPriority(Notification.PRIORITY_MAX)
+                .setVisibility(Notification.VISIBILITY_SECRET)
+                .setContent(contentView)
                 .setOngoing(true)
                 .setLocalOnly(true);
     }
