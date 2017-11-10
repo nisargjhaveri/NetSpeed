@@ -2,11 +2,13 @@ package com.nisargjhaveri.netspeed;
 
 import android.app.Notification;
 import android.app.NotificationManager;
+import android.app.PendingIntent;
 import android.app.Service;
 import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
+import android.content.SharedPreferences;
 import android.graphics.Bitmap;
 import android.graphics.Canvas;
 import android.graphics.Color;
@@ -17,10 +19,14 @@ import android.graphics.drawable.Icon;
 import android.net.TrafficStats;
 import android.os.Handler;
 import android.os.IBinder;
+import android.preference.PreferenceManager;
+import android.view.View;
 import android.widget.RemoteViews;
 
 public final class NetSpeedIndicatorService extends Service {
     private static final int NOTIFICATION_ID = 1;
+
+    private SharedPreferences mSharedPref;
 
     private Paint mIconSpeedPaint, mIconUnitPaint;
     private Bitmap mIconBitmap;
@@ -75,6 +81,8 @@ public final class NetSpeedIndicatorService extends Service {
     public void onCreate() {
         super.onCreate();
 
+        mSharedPref = PreferenceManager.getDefaultSharedPreferences(this);
+
         setupIndicatorIconGenerator();
         setupNotifications();
 
@@ -124,6 +132,12 @@ public final class NetSpeedIndicatorService extends Service {
     private void setupNotifications() {
         RemoteViews contentView = new RemoteViews(getPackageName(), R.layout.indicator_notification_view);
         contentView.setImageViewBitmap(R.id.notificationIcon, mIconBitmap);
+
+        if (mSharedPref.getBoolean(SettingsFragment.KEY_SHOW_SETTINGS_BUTTON, false)) {
+            PendingIntent openSettingsIntent = PendingIntent.getActivity(this, 0, new Intent(this, MainActivity.class), 0);
+            contentView.setOnClickPendingIntent(R.id.notificationSettings, openSettingsIntent);
+            contentView.setViewVisibility(R.id.notificationSettings, View.VISIBLE);
+        }
 
         mNotificationManager = (NotificationManager)getSystemService(Context.NOTIFICATION_SERVICE);
         mNotificationBuilder = new Notification.Builder(this)

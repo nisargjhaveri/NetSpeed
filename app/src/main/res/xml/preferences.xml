@@ -13,6 +13,12 @@
         android:title="Options">
 
         <SwitchPreference
+            android:key="showSettingsButton"
+            android:title="Settings button"
+            android:summary="Show a button in notification to open settings"
+            android:defaultValue="false" />
+
+        <SwitchPreference
             android:key="startOnBoot"
             android:title="Start on boot"
             android:summary="Start NetSpeed indicator on boot"

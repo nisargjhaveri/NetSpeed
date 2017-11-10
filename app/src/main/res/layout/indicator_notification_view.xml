@@ -1,14 +1,15 @@
 <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
-    android:layout_height="match_parent"
-    android:paddingStart="@dimen/notificationPaddingStart"
-    android:paddingEnd="@dimen/notificationPaddingEnd">
+    android:layout_height="wrap_content"
+    android:paddingStart="16dp"
+    android:paddingEnd="16dp">
 
     <ImageView
-        android:layout_width="@dimen/notificationIconHeight"
-        android:layout_height="@dimen/notificationIconWidth"
+        android:layout_width="18dp"
+        android:layout_height="18dp"
         android:layout_centerVertical="true"
+        android:alpha="0.7"
+        android:contentDescription="Notification Icon"
         android:id="@+id/notificationIcon" />
 
     <TextView
@@ -17,7 +18,21 @@
         android:text="NetSpeed Indicator! :D"
         android:layout_centerVertical="true"
         android:layout_toEndOf="@id/notificationIcon"
-        android:layout_marginStart="@dimen/notificationTextMarginStart"
-        android:id="@+id/notificationText"/>
+        android:layout_toStartOf="@id/notificationSettings"
+        android:layout_marginStart="8dp"
+        android:layout_marginEnd="8dp"
+        android:id="@+id/notificationText" />
+
+    <ImageView
+        android:layout_width="48dp"
+        android:layout_height="48dp"
+        android:scaleType="centerInside"
+        android:src="@drawable/ic_settings_black_24dp"
+        android:layout_centerVertical="true"
+        android:layout_alignParentEnd="true"
+        android:alpha="0.5"
+        android:visibility="gone"
+        android:contentDescription="Settings button"
+        android:id="@+id/notificationSettings" />
 
 </RelativeLayout>

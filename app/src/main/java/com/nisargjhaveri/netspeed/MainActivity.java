@@ -20,6 +20,8 @@ public final class MainActivity extends AppCompatActivity {
                 } else {
                     stopIndicatorService();
                 }
+            } else if (key.equals(SettingsFragment.KEY_SHOW_SETTINGS_BUTTON)) {
+                restartIndicatorService();
             }
         }
     };
@@ -54,5 +56,11 @@ public final class MainActivity extends AppCompatActivity {
 
     private void stopIndicatorService() {
         stopService(new Intent(this, NetSpeedIndicatorService.class));
+    }
+
+    private void restartIndicatorService() {
+        Intent serviceIntent = new Intent(this, NetSpeedIndicatorService.class);
+        stopService(serviceIntent );
+        startService(serviceIntent );
     }
 }
