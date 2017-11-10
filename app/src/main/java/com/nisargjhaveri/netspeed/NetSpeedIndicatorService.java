@@ -172,10 +172,10 @@ public final class NetSpeedIndicatorService extends Service {
         String speedUnit;
 
         if (speed < 1000000) {
-            speedUnit = getString(R.string.kbps);
+            speedUnit = getString(R.string.kBps);
             speedValue = String.valueOf(speed / 1000);
         } else if (speed >= 1000000) {
-            speedUnit = getString(R.string.mbps);
+            speedUnit = getString(R.string.MBps);
 
             if (speed < 10000000) {
                 speedValue = String.format("%.1f", speed / 1000000.0);
