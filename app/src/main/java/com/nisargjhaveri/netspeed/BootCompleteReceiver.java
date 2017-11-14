@@ -16,8 +16,8 @@ public final class BootCompleteReceiver extends BroadcastReceiver {
 
         SharedPreferences sharedPreferences = PreferenceManager.getDefaultSharedPreferences(context);
 
-        if (!sharedPreferences.getBoolean(SettingsFragment.KEY_START_ON_BOOT, true)
-                || !sharedPreferences.getBoolean(SettingsFragment.KEY_INDICATOR_ENABLED, true)) {
+        if (!sharedPreferences.getBoolean(Settings.KEY_START_ON_BOOT, true)
+                || !sharedPreferences.getBoolean(Settings.KEY_INDICATOR_ENABLED, true)) {
             return;
         }
 

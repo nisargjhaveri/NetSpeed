@@ -14,14 +14,14 @@ public final class MainActivity extends AppCompatActivity {
     private final OnSharedPreferenceChangeListener mSettingsListener = new OnSharedPreferenceChangeListener() {
         @Override
         public void onSharedPreferenceChanged(SharedPreferences sharedPreferences, String key) {
-            if (key.equals(SettingsFragment.KEY_INDICATOR_ENABLED)) {
-                if (mSharedPref.getBoolean(SettingsFragment.KEY_INDICATOR_ENABLED, true)) {
+            if (key.equals(Settings.KEY_INDICATOR_ENABLED)) {
+                if (mSharedPref.getBoolean(Settings.KEY_INDICATOR_ENABLED, true)) {
                     startIndicatorService();
                 } else {
                     stopIndicatorService();
                 }
-            } else if (key.equals(SettingsFragment.KEY_SHOW_SETTINGS_BUTTON)) {
-                restartIndicatorService();
+            } else if (key.equals(Settings.KEY_SHOW_SETTINGS_BUTTON)) {
+                startIndicatorService();
             }
         }
     };
@@ -33,7 +33,7 @@ public final class MainActivity extends AppCompatActivity {
 
         mSharedPref = PreferenceManager.getDefaultSharedPreferences(this);
 
-        if (mSharedPref.getBoolean(SettingsFragment.KEY_INDICATOR_ENABLED, true)) {
+        if (mSharedPref.getBoolean(Settings.KEY_INDICATOR_ENABLED, true)) {
             startIndicatorService();
         }
     }
@@ -51,16 +51,16 @@ public final class MainActivity extends AppCompatActivity {
     }
 
     private void startIndicatorService() {
-        startService(new Intent(this, NetSpeedIndicatorService.class));
+        Intent serviceIntent = new Intent(this, NetSpeedIndicatorService.class);
+        serviceIntent.putExtra(
+                Settings.KEY_SHOW_SETTINGS_BUTTON,
+                mSharedPref.getBoolean(Settings.KEY_SHOW_SETTINGS_BUTTON, false)
+        );
+
+        startService(serviceIntent);
     }
 
     private void stopIndicatorService() {
         stopService(new Intent(this, NetSpeedIndicatorService.class));
-    }
-
-    private void restartIndicatorService() {
-        Intent serviceIntent = new Intent(this, NetSpeedIndicatorService.class);
-        stopService(serviceIntent);
-        startService(serviceIntent);
     }
 }

@@ -8,7 +8,6 @@ import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
-import android.content.SharedPreferences;
 import android.graphics.Bitmap;
 import android.graphics.Canvas;
 import android.graphics.Color;
@@ -19,7 +18,6 @@ import android.graphics.drawable.Icon;
 import android.net.TrafficStats;
 import android.os.Handler;
 import android.os.IBinder;
-import android.preference.PreferenceManager;
 import android.view.View;
 import android.widget.RemoteViews;
 
@@ -28,11 +26,13 @@ import java.util.Locale;
 public final class NetSpeedIndicatorService extends Service {
     private static final int NOTIFICATION_ID = 1;
 
-    private SharedPreferences mSharedPref;
+    private boolean mShowSettingsButton = false;
 
     private Paint mIconSpeedPaint, mIconUnitPaint;
     private Bitmap mIconBitmap;
     private Canvas mIconCanvas;
+
+    private RemoteViews mNotificationContentView;
 
     private NotificationManager mNotificationManager;
     private Notification.Builder mNotificationBuilder;
@@ -83,8 +83,6 @@ public final class NetSpeedIndicatorService extends Service {
     public void onCreate() {
         super.onCreate();
 
-        mSharedPref = PreferenceManager.getDefaultSharedPreferences(this);
-
         setupIndicatorIconGenerator();
         setupNotifications();
 
@@ -99,6 +97,15 @@ public final class NetSpeedIndicatorService extends Service {
         screenIntent.addAction(Intent.ACTION_SCREEN_ON);
         screenIntent.addAction(Intent.ACTION_SCREEN_OFF);
         registerReceiver(mScreenBroadcastReceiver, screenIntent);
+    }
+
+    @Override
+    public int onStartCommand(Intent intent, int flags, int startId) {
+        mShowSettingsButton = intent.getBooleanExtra(Settings.KEY_SHOW_SETTINGS_BUTTON, false);
+
+        setupSettingsButton();
+
+        return START_REDELIVER_INTENT;
     }
 
     private void pauseNotifying() {
@@ -131,22 +138,27 @@ public final class NetSpeedIndicatorService extends Service {
         mLastTime = currentTime;
     }
 
-    private void setupNotifications() {
-        RemoteViews contentView = new RemoteViews(getPackageName(), R.layout.indicator_notification_view);
-        contentView.setImageViewBitmap(R.id.notificationIcon, mIconBitmap);
-
-        if (mSharedPref.getBoolean(SettingsFragment.KEY_SHOW_SETTINGS_BUTTON, false)) {
-            PendingIntent openSettingsIntent = PendingIntent.getActivity(this, 0, new Intent(this, MainActivity.class), 0);
-            contentView.setOnClickPendingIntent(R.id.notificationSettings, openSettingsIntent);
-            contentView.setViewVisibility(R.id.notificationSettings, View.VISIBLE);
+    private void setupSettingsButton() {
+        if (mShowSettingsButton) {
+            mNotificationContentView.setViewVisibility(R.id.notificationSettings, View.VISIBLE);
+        } else {
+            mNotificationContentView.setViewVisibility(R.id.notificationSettings, View.GONE);
         }
+    }
+
+    private void setupNotifications() {
+        mNotificationContentView = new RemoteViews(getPackageName(), R.layout.indicator_notification_view);
+        mNotificationContentView.setImageViewBitmap(R.id.notificationIcon, mIconBitmap);
+
+        PendingIntent openSettingsIntent = PendingIntent.getActivity(this, 0, new Intent(this, MainActivity.class), 0);
+        mNotificationContentView.setOnClickPendingIntent(R.id.notificationSettings, openSettingsIntent);
 
         mNotificationManager = (NotificationManager)getSystemService(Context.NOTIFICATION_SERVICE);
         mNotificationBuilder = new Notification.Builder(this)
                 .setSmallIcon(getIndicatorIcon(0))
                 .setPriority(Notification.PRIORITY_MAX)
                 .setVisibility(Notification.VISIBILITY_SECRET)
-                .setContent(contentView)
+                .setContent(mNotificationContentView)
                 .setOngoing(true)
                 .setLocalOnly(true);
     }

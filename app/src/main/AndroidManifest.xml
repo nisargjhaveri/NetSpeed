@@ -25,7 +25,8 @@
         <service
             android:name=".NetSpeedIndicatorService"
             android:enabled="true"
-            android:exported="false" />
+            android:exported="false"
+            android:process=":background" />
 
         <receiver
             android:name=".BootCompleteReceiver"
