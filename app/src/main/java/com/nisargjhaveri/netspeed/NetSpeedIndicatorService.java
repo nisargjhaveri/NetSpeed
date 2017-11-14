@@ -23,6 +23,8 @@ import android.preference.PreferenceManager;
 import android.view.View;
 import android.widget.RemoteViews;
 
+import java.util.Locale;
+
 public final class NetSpeedIndicatorService extends Service {
     private static final int NOTIFICATION_ID = 1;
 
@@ -32,8 +34,8 @@ public final class NetSpeedIndicatorService extends Service {
     private Bitmap mIconBitmap;
     private Canvas mIconCanvas;
 
-    NotificationManager mNotificationManager;
-    Notification.Builder mNotificationBuilder;
+    private NotificationManager mNotificationManager;
+    private Notification.Builder mNotificationBuilder;
 
     private long mLastUsage = 0;
     private long mLastTime = 0;
@@ -41,7 +43,7 @@ public final class NetSpeedIndicatorService extends Service {
     final private Handler mHandler = new Handler();
     private boolean mNotificationPaused = true;
 
-    private Runnable mHandlerRunnable = new Runnable() {
+    private final Runnable mHandlerRunnable = new Runnable() {
         @Override
         public void run() {
             updateNotification();
@@ -49,7 +51,7 @@ public final class NetSpeedIndicatorService extends Service {
         }
     };
 
-    private BroadcastReceiver mScreenBroadcastReceiver = new BroadcastReceiver() {
+    private final BroadcastReceiver mScreenBroadcastReceiver = new BroadcastReceiver() {
         @Override
         public void onReceive(Context context, Intent intent) {
             if (intent == null || intent.getAction() == null) {
@@ -99,12 +101,12 @@ public final class NetSpeedIndicatorService extends Service {
         registerReceiver(mScreenBroadcastReceiver, screenIntent);
     }
 
-    public void pauseNotifying() {
+    private void pauseNotifying() {
         mHandler.removeCallbacks(mHandlerRunnable);
         mNotificationPaused = true;
     }
 
-    public void startNotifying() {
+    private void startNotifying() {
         if (!mNotificationPaused) return;
 
         mHandler.post(mHandlerRunnable);
@@ -178,7 +180,7 @@ public final class NetSpeedIndicatorService extends Service {
             speedUnit = getString(R.string.MBps);
 
             if (speed < 10000000) {
-                speedValue = String.format("%.1f", speed / 1000000.0);
+                speedValue = String.format(Locale.ENGLISH, "%.1f", speed / 1000000.0);
             } else if (speed < 100000000) {
                 speedValue = String.valueOf(speed / 1000000);
             } else {

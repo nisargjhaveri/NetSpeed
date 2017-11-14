@@ -9,9 +9,9 @@ import android.support.v7.app.AppCompatActivity;
 
 public final class MainActivity extends AppCompatActivity {
 
-    SharedPreferences mSharedPref;
+    private SharedPreferences mSharedPref;
 
-    OnSharedPreferenceChangeListener mSettingsListener = new OnSharedPreferenceChangeListener() {
+    private final OnSharedPreferenceChangeListener mSettingsListener = new OnSharedPreferenceChangeListener() {
         @Override
         public void onSharedPreferenceChanged(SharedPreferences sharedPreferences, String key) {
             if (key.equals(SettingsFragment.KEY_INDICATOR_ENABLED)) {
@@ -60,7 +60,7 @@ public final class MainActivity extends AppCompatActivity {
 
     private void restartIndicatorService() {
         Intent serviceIntent = new Intent(this, NetSpeedIndicatorService.class);
-        stopService(serviceIntent );
-        startService(serviceIntent );
+        stopService(serviceIntent);
+        startService(serviceIntent);
     }
 }
