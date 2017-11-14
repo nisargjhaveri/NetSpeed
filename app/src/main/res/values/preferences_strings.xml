@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string-array name="notification_priority_titles">
+        <item>Maximum</item>
+        <item>High</item>
+        <item>Normal</item>
+        <item>Low</item>
+    </string-array>
+    <string-array name="notification_priority_values">
+        <item>max</item>
+        <item>high</item>
+        <item>default</item>
+        <item>low</item>
+    </string-array>
+</resources>

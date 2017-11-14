@@ -20,7 +20,8 @@ public final class MainActivity extends AppCompatActivity {
                 } else {
                     stopIndicatorService();
                 }
-            } else if (key.equals(Settings.KEY_SHOW_SETTINGS_BUTTON)) {
+            } else if (key.equals(Settings.KEY_SHOW_SETTINGS_BUTTON)
+                    || key.equals(Settings.KEY_NOTIFICATION_PRIORITY)) {
                 startIndicatorService();
             }
         }
@@ -51,13 +52,7 @@ public final class MainActivity extends AppCompatActivity {
     }
 
     private void startIndicatorService() {
-        Intent serviceIntent = new Intent(this, NetSpeedIndicatorService.class);
-        serviceIntent.putExtra(
-                Settings.KEY_SHOW_SETTINGS_BUTTON,
-                mSharedPref.getBoolean(Settings.KEY_SHOW_SETTINGS_BUTTON, false)
-        );
-
-        startService(serviceIntent);
+        startService(IndicatorServiceHelper.getServiceIntent(this));
     }
 
     private void stopIndicatorService() {

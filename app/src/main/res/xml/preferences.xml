@@ -10,13 +10,26 @@
 
     <PreferenceCategory
         android:dependency="indicatorEnabled"
-        android:title="Options">
+        android:title="Notification Settings">
 
         <SwitchPreference
             android:key="showSettingsButton"
             android:title="Settings button"
             android:summary="Show a button in notification to open settings"
             android:defaultValue="false" />
+
+        <ListPreference
+            android:key="notificationPriority"
+            android:title="Notification priority"
+            android:summary="%s"
+            android:entries="@array/notification_priority_titles"
+            android:entryValues="@array/notification_priority_values"
+            android:defaultValue="max" />
+    </PreferenceCategory>
+
+    <PreferenceCategory
+        android:dependency="indicatorEnabled"
+        android:title="General Options">
 
         <SwitchPreference
             android:key="startOnBoot"

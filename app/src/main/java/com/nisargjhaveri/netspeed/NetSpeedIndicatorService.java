@@ -16,6 +16,7 @@ import android.graphics.PorterDuff;
 import android.graphics.Typeface;
 import android.graphics.drawable.Icon;
 import android.net.TrafficStats;
+import android.os.Bundle;
 import android.os.Handler;
 import android.os.IBinder;
 import android.view.View;
@@ -25,8 +26,6 @@ import java.util.Locale;
 
 public final class NetSpeedIndicatorService extends Service {
     private static final int NOTIFICATION_ID = 1;
-
-    private boolean mShowSettingsButton = false;
 
     private Paint mIconSpeedPaint, mIconUnitPaint;
     private Bitmap mIconBitmap;
@@ -101,9 +100,7 @@ public final class NetSpeedIndicatorService extends Service {
 
     @Override
     public int onStartCommand(Intent intent, int flags, int startId) {
-        mShowSettingsButton = intent.getBooleanExtra(Settings.KEY_SHOW_SETTINGS_BUTTON, false);
-
-        setupSettingsButton();
+        handleConfigChange(intent.getExtras());
 
         return START_REDELIVER_INTENT;
     }
@@ -118,6 +115,11 @@ public final class NetSpeedIndicatorService extends Service {
 
         mHandler.post(mHandlerRunnable);
         mNotificationPaused = false;
+    }
+
+    private void restartNotifying() {
+        pauseNotifying();
+        startNotifying();
     }
 
     private void updateNotification() {
@@ -138,12 +140,33 @@ public final class NetSpeedIndicatorService extends Service {
         mLastTime = currentTime;
     }
 
-    private void setupSettingsButton() {
-        if (mShowSettingsButton) {
+    private void handleConfigChange(Bundle extras) {
+        if (extras.getBoolean(Settings.KEY_SHOW_SETTINGS_BUTTON)) {
             mNotificationContentView.setViewVisibility(R.id.notificationSettings, View.VISIBLE);
         } else {
             mNotificationContentView.setViewVisibility(R.id.notificationSettings, View.GONE);
         }
+
+        int notificationPriority = 0;
+
+        switch (extras.getString(Settings.KEY_NOTIFICATION_PRIORITY, "max")) {
+            case "low":
+                notificationPriority = Notification.PRIORITY_LOW;
+                break;
+            case "default":
+                notificationPriority = Notification.PRIORITY_DEFAULT;
+                break;
+            case "high":
+                notificationPriority = Notification.PRIORITY_HIGH;
+                break;
+            case "max":
+                notificationPriority = Notification.PRIORITY_MAX;
+                break;
+        }
+
+        mNotificationBuilder.setPriority(notificationPriority);
+
+        restartNotifying();
     }
 
     private void setupNotifications() {

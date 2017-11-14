@@ -21,7 +21,6 @@ public final class BootCompleteReceiver extends BroadcastReceiver {
             return;
         }
 
-        Intent indicatorService = new Intent(context, NetSpeedIndicatorService.class);
-        context.startService(indicatorService);
+        context.startService(IndicatorServiceHelper.getServiceIntent(context));
     }
 }
