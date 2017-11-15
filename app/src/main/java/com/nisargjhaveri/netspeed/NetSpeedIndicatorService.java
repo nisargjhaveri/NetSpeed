@@ -144,7 +144,7 @@ public final class NetSpeedIndicatorService extends Service {
 
     private void handleConfigChange(Bundle extras) {
         // Show/Hide settings button
-        if (extras.getBoolean(Settings.KEY_SHOW_SETTINGS_BUTTON)) {
+        if (extras.getBoolean(Settings.KEY_SHOW_SETTINGS_BUTTON, false)) {
             mNotificationContentView.setViewVisibility(R.id.notificationSettings, View.VISIBLE);
         } else {
             mNotificationContentView.setViewVisibility(R.id.notificationSettings, View.GONE);
