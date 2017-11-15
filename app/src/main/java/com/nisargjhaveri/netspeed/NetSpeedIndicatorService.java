@@ -90,14 +90,12 @@ public final class NetSpeedIndicatorService extends Service {
         mLastUsage = TrafficStats.getTotalRxBytes() +TrafficStats.getTotalTxBytes();
         mLastTime = System.currentTimeMillis();
 
-        startForeground(NOTIFICATION_ID, mNotificationBuilder.build());
-
-        startNotifying();
-
         IntentFilter screenIntent = new IntentFilter();
         screenIntent.addAction(Intent.ACTION_SCREEN_ON);
         screenIntent.addAction(Intent.ACTION_SCREEN_OFF);
         registerReceiver(mScreenBroadcastReceiver, screenIntent);
+
+        startForeground(NOTIFICATION_ID, mNotificationBuilder.build());
     }
 
     @Override
@@ -167,6 +165,13 @@ public final class NetSpeedIndicatorService extends Service {
                 break;
         }
         mNotificationBuilder.setPriority(notificationPriority);
+
+        // Show/Hide on lock screen
+        if (extras.getBoolean(Settings.KEY_NOTIFICATION_ON_LOCK_SCREEN, false)) {
+            mNotificationBuilder.setVisibility(Notification.VISIBILITY_PUBLIC);
+        } else {
+            mNotificationBuilder.setVisibility(Notification.VISIBILITY_SECRET);
+        }
 
         // Speed unit, bps or Bps
         mIsSpeedUnitBits = extras.getString(Settings.KEY_INDICATOR_SPEED_UNIT, "Bps").equals("bps");

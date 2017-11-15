@@ -26,6 +26,13 @@
             android:entryValues="@array/notification_priority_values"
             android:defaultValue="max" />
 
+        <SwitchPreference
+            android:key="notificationOnLockScreen"
+            android:title="Lockscreen notification"
+            android:summaryOn="Notification is visible on lockscreen"
+            android:summaryOff="Notification is hidden from lockscreen"
+            android:defaultValue="false" />
+
         <ListPreference
             android:key="indicatorSpeedUnit"
             android:title="Speed units"
