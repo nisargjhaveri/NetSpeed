@@ -12,4 +12,14 @@
         <item>default</item>
         <item>low</item>
     </string-array>
+
+    <string-array name="notification_speed_units_titles">
+        <item>Bytes per second</item>
+        <item>Bits per second</item>
+    </string-array>
+
+    <string-array name="notification_speed_units_values">
+        <item>Bps</item>
+        <item>bps</item>
+    </string-array>
 </resources>

@@ -25,6 +25,14 @@
             android:entries="@array/notification_priority_titles"
             android:entryValues="@array/notification_priority_values"
             android:defaultValue="max" />
+
+        <ListPreference
+            android:key="indicatorSpeedUnit"
+            android:title="Speed units"
+            android:summary="%s"
+            android:entries="@array/notification_speed_units_titles"
+            android:entryValues="@array/notification_speed_units_values"
+            android:defaultValue="Bps" />
     </PreferenceCategory>
 
     <PreferenceCategory

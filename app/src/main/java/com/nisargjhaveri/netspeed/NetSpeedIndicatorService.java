@@ -39,6 +39,8 @@ public final class NetSpeedIndicatorService extends Service {
     private long mLastUsage = 0;
     private long mLastTime = 0;
 
+    private boolean mIsSpeedUnitBits = false;
+
     final private Handler mHandler = new Handler();
     private boolean mNotificationPaused = true;
 
@@ -129,7 +131,7 @@ public final class NetSpeedIndicatorService extends Service {
         mNotificationBuilder
                 .setSmallIcon(
                         getIndicatorIcon(
-                                (currentUsage - mLastUsage) * 1000 / (currentTime - mLastTime)
+                                (mIsSpeedUnitBits ? 8 : 1) * (currentUsage - mLastUsage) * 1000 / (currentTime - mLastTime)
                         )
                 );
 
@@ -141,14 +143,15 @@ public final class NetSpeedIndicatorService extends Service {
     }
 
     private void handleConfigChange(Bundle extras) {
+        // Show/Hide settings button
         if (extras.getBoolean(Settings.KEY_SHOW_SETTINGS_BUTTON)) {
             mNotificationContentView.setViewVisibility(R.id.notificationSettings, View.VISIBLE);
         } else {
             mNotificationContentView.setViewVisibility(R.id.notificationSettings, View.GONE);
         }
 
+        // Notification priority
         int notificationPriority = 0;
-
         switch (extras.getString(Settings.KEY_NOTIFICATION_PRIORITY, "max")) {
             case "low":
                 notificationPriority = Notification.PRIORITY_LOW;
@@ -163,8 +166,10 @@ public final class NetSpeedIndicatorService extends Service {
                 notificationPriority = Notification.PRIORITY_MAX;
                 break;
         }
-
         mNotificationBuilder.setPriority(notificationPriority);
+
+        // Speed unit, bps or Bps
+        mIsSpeedUnitBits = extras.getString(Settings.KEY_INDICATOR_SPEED_UNIT, "Bps").equals("bps");
 
         restartNotifying();
     }
@@ -209,10 +214,10 @@ public final class NetSpeedIndicatorService extends Service {
         String speedUnit;
 
         if (speed < 1000000) {
-            speedUnit = getString(R.string.kBps);
+            speedUnit = getString(mIsSpeedUnitBits ? R.string.kbps : R.string.kBps);
             speedValue = String.valueOf(speed / 1000);
         } else if (speed >= 1000000) {
-            speedUnit = getString(R.string.MBps);
+            speedUnit = getString(mIsSpeedUnitBits ? R.string.Mbps : R.string.MBps);
 
             if (speed < 10000000) {
                 speedValue = String.format(Locale.ENGLISH, "%.1f", speed / 1000000.0);

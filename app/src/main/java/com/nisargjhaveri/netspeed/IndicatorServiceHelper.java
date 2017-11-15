@@ -19,6 +19,10 @@ public final class IndicatorServiceHelper {
                 Settings.KEY_NOTIFICATION_PRIORITY,
                 sharedPref.getString(Settings.KEY_NOTIFICATION_PRIORITY, "max")
         );
+        serviceIntent.putExtra(
+                Settings.KEY_INDICATOR_SPEED_UNIT,
+                sharedPref.getString(Settings.KEY_INDICATOR_SPEED_UNIT, "Bps")
+        );
 
         return serviceIntent;
     }

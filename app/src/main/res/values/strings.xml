@@ -3,6 +3,9 @@
 
     <string name="kBps">kB/s</string>
     <string name="MBps">MB/s</string>
+    <string name="kbps">kb/s</string>
+    <string name="Mbps">Mb/s</string>
+
     <string name="plus99">99+</string>
     <string name="dash">-</string>
 </resources>
