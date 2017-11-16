@@ -42,7 +42,9 @@ public final class NetSpeedIndicatorService extends Service {
     private boolean mIsSpeedUnitBits = false;
 
     final private Handler mHandler = new Handler();
+
     private boolean mNotificationPaused = true;
+    private boolean mNotificationCreated = false;
 
     private final Runnable mHandlerRunnable = new Runnable() {
         @Override
@@ -94,13 +96,18 @@ public final class NetSpeedIndicatorService extends Service {
         screenIntent.addAction(Intent.ACTION_SCREEN_ON);
         screenIntent.addAction(Intent.ACTION_SCREEN_OFF);
         registerReceiver(mScreenBroadcastReceiver, screenIntent);
-
-        startForeground(NOTIFICATION_ID, mNotificationBuilder.build());
     }
 
     @Override
     public int onStartCommand(Intent intent, int flags, int startId) {
         handleConfigChange(intent.getExtras());
+
+        if (!mNotificationCreated) {
+            startForeground(NOTIFICATION_ID, mNotificationBuilder.build());
+            mNotificationCreated = true;
+        }
+
+        restartNotifying();
 
         return START_REDELIVER_INTENT;
     }
@@ -175,8 +182,6 @@ public final class NetSpeedIndicatorService extends Service {
 
         // Speed unit, bps or Bps
         mIsSpeedUnitBits = extras.getString(Settings.KEY_INDICATOR_SPEED_UNIT, "Bps").equals("bps");
-
-        restartNotifying();
     }
 
     private void setupNotifications() {
