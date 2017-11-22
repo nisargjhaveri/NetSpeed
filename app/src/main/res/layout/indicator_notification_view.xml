@@ -21,6 +21,8 @@
         android:layout_toStartOf="@id/notificationSettings"
         android:layout_marginStart="8dp"
         android:layout_marginEnd="8dp"
+        style="@style/TextAppearance.AppCompat.Notification.Info"
+        android:textSize="14sp"
         android:id="@+id/notificationText" />
 
     <ImageView
