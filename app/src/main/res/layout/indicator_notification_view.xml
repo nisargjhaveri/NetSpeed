@@ -15,11 +15,10 @@
     <TextView
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="NetSpeed Indicator! :D"
         android:layout_centerVertical="true"
         android:layout_toEndOf="@id/notificationIcon"
         android:layout_toStartOf="@id/notificationSettings"
-        android:layout_marginStart="8dp"
+        android:layout_marginStart="16dp"
         android:layout_marginEnd="8dp"
         style="@style/TextAppearance.AppCompat.Notification.Info"
         android:textSize="14sp"
