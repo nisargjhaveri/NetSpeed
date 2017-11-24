@@ -1,5 +1,6 @@
 package com.nisargjhaveri.netspeed;
 
+import android.app.KeyguardManager;
 import android.app.Notification;
 import android.app.NotificationManager;
 import android.app.PendingIntent;
@@ -36,6 +37,8 @@ public final class NetSpeedIndicatorService extends Service {
     private NotificationManager mNotificationManager;
     private Notification.Builder mNotificationBuilder;
 
+    private KeyguardManager mKeyguardManager;
+
     private long mLastRxBytes = 0;
     private long mLastTxBytes = 0;
     private long mLastTime = 0;
@@ -46,10 +49,12 @@ public final class NetSpeedIndicatorService extends Service {
 
     private boolean mIsSpeedUnitBits = false;
 
-    final private Handler mHandler = new Handler();
-
-    private boolean mNotificationPaused = true;
     private boolean mNotificationCreated = false;
+
+    private int mNotificationPriority;
+    private boolean mNotificationOnLockScreen;
+
+    final private Handler mHandler = new Handler();
 
     private final Runnable mHandlerRunnable = new Runnable() {
         @Override
@@ -68,8 +73,18 @@ public final class NetSpeedIndicatorService extends Service {
 
             if (intent.getAction().equals(Intent.ACTION_SCREEN_OFF)) {
                 pauseNotifying();
+                if (!mNotificationOnLockScreen) {
+                    hideNotification();
+                }
+                updateNotification();
             } else if (intent.getAction().equals(Intent.ACTION_SCREEN_ON)) {
-                startNotifying();
+                if (mNotificationOnLockScreen || !mKeyguardManager.isKeyguardLocked()) {
+                    showNotification();
+                    restartNotifying();
+                }
+            } else if (intent.getAction().equals(Intent.ACTION_USER_PRESENT)) {
+                showNotification();
+                restartNotifying();
             }
         }
     };
@@ -145,11 +160,6 @@ public final class NetSpeedIndicatorService extends Service {
 
         setupIndicatorIconGenerator();
         setupNotifications();
-
-        IntentFilter screenIntent = new IntentFilter();
-        screenIntent.addAction(Intent.ACTION_SCREEN_ON);
-        screenIntent.addAction(Intent.ACTION_SCREEN_OFF);
-        registerReceiver(mScreenBroadcastReceiver, screenIntent);
     }
 
     @Override
@@ -168,19 +178,19 @@ public final class NetSpeedIndicatorService extends Service {
 
     private void pauseNotifying() {
         mHandler.removeCallbacks(mHandlerRunnable);
-        mNotificationPaused = true;
-    }
-
-    private void startNotifying() {
-        if (!mNotificationPaused) return;
-
-        mHandler.post(mHandlerRunnable);
-        mNotificationPaused = false;
     }
 
     private void restartNotifying() {
-        pauseNotifying();
-        startNotifying();
+        mHandler.removeCallbacks(mHandlerRunnable);
+        mHandler.post(mHandlerRunnable);
+    }
+
+    private void hideNotification() {
+        mNotificationBuilder.setPriority(Notification.PRIORITY_MIN);
+    }
+
+    private void showNotification() {
+        mNotificationBuilder.setPriority(mNotificationPriority);
     }
 
     private void updateNotification() {
@@ -225,29 +235,42 @@ public final class NetSpeedIndicatorService extends Service {
         }
 
         // Notification priority
-        int notificationPriority = 0;
         switch (extras.getString(Settings.KEY_NOTIFICATION_PRIORITY, "max")) {
             case "low":
-                notificationPriority = Notification.PRIORITY_LOW;
+                mNotificationPriority = Notification.PRIORITY_LOW;
                 break;
             case "default":
-                notificationPriority = Notification.PRIORITY_DEFAULT;
+                mNotificationPriority = Notification.PRIORITY_DEFAULT;
                 break;
             case "high":
-                notificationPriority = Notification.PRIORITY_HIGH;
+                mNotificationPriority = Notification.PRIORITY_HIGH;
                 break;
             case "max":
-                notificationPriority = Notification.PRIORITY_MAX;
+                mNotificationPriority = Notification.PRIORITY_MAX;
                 break;
         }
-        mNotificationBuilder.setPriority(notificationPriority);
+        mNotificationBuilder.setPriority(mNotificationPriority);
 
         // Show/Hide on lock screen
-        if (extras.getBoolean(Settings.KEY_NOTIFICATION_ON_LOCK_SCREEN, false)) {
+        IntentFilter screenBroadcastIntentFilter = new IntentFilter();
+        screenBroadcastIntentFilter.addAction(Intent.ACTION_SCREEN_ON);
+        screenBroadcastIntentFilter.addAction(Intent.ACTION_SCREEN_OFF);
+
+        mNotificationOnLockScreen = extras.getBoolean(Settings.KEY_NOTIFICATION_ON_LOCK_SCREEN, false);
+
+        if (mNotificationOnLockScreen) {
             mNotificationBuilder.setVisibility(Notification.VISIBILITY_PUBLIC);
         } else {
             mNotificationBuilder.setVisibility(Notification.VISIBILITY_SECRET);
+
+            screenBroadcastIntentFilter.addAction(Intent.ACTION_USER_PRESENT);
+            screenBroadcastIntentFilter.setPriority(999);
         }
+
+        if (mNotificationCreated) {
+            unregisterReceiver(mScreenBroadcastReceiver);
+        }
+        registerReceiver(mScreenBroadcastReceiver, screenBroadcastIntentFilter);
 
         // Speed unit, bps or Bps
         mIsSpeedUnitBits = extras.getString(Settings.KEY_INDICATOR_SPEED_UNIT, "Bps").equals("bps");
@@ -268,6 +291,8 @@ public final class NetSpeedIndicatorService extends Service {
                 .setContent(mNotificationContentView)
                 .setOngoing(true)
                 .setLocalOnly(true);
+
+        mKeyguardManager = (KeyguardManager)getSystemService(Context.KEYGUARD_SERVICE);
     }
 
     private void setupIndicatorIconGenerator() {
