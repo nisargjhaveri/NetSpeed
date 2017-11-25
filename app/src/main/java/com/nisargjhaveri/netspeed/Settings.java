@@ -1,6 +1,7 @@
 package com.nisargjhaveri.netspeed;
 
 public final class Settings {
+    // Keys used by preferences
     public static final String KEY_INDICATOR_ENABLED = "indicatorEnabled";
     public static final String KEY_START_ON_BOOT = "startOnBoot";
 
@@ -9,4 +10,7 @@ public final class Settings {
     public static final String KEY_NOTIFICATION_ON_LOCK_SCREEN = "notificationOnLockScreen";
 
     public static final String KEY_INDICATOR_SPEED_UNIT = "indicatorSpeedUnit";
+
+    // Other keys used with SharedPreferences
+    public static final String KEY_INDICATOR_STARTED = "indicatorStarted";
 }

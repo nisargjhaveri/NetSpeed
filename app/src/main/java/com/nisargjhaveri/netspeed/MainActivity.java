@@ -1,6 +1,5 @@
 package com.nisargjhaveri.netspeed;
 
-import android.content.Intent;
 import android.content.SharedPreferences;
 import android.content.SharedPreferences.OnSharedPreferenceChangeListener;
 import android.os.Bundle;
@@ -51,10 +50,10 @@ public final class MainActivity extends AppCompatActivity {
     }
 
     private void startIndicatorService() {
-        startService(IndicatorServiceHelper.getServiceIntent(this));
+        IndicatorServiceHelper.startService(this);
     }
 
     private void stopIndicatorService() {
-        stopService(new Intent(this, NetSpeedIndicatorService.class));
+        IndicatorServiceHelper.stopService(this);
     }
 }

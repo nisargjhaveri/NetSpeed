@@ -16,11 +16,15 @@ public final class BootCompleteReceiver extends BroadcastReceiver {
 
         SharedPreferences sharedPreferences = PreferenceManager.getDefaultSharedPreferences(context);
 
+        sharedPreferences.edit()
+                .putBoolean(Settings.KEY_INDICATOR_STARTED, false)
+                .apply();
+
         if (!sharedPreferences.getBoolean(Settings.KEY_START_ON_BOOT, true)
                 || !sharedPreferences.getBoolean(Settings.KEY_INDICATOR_ENABLED, true)) {
             return;
         }
 
-        context.startService(IndicatorServiceHelper.getServiceIntent(context));
+        IndicatorServiceHelper.startService(context);
     }
 }

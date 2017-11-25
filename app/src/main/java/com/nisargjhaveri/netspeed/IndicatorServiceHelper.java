@@ -8,7 +8,7 @@ import android.preference.PreferenceManager;
 import java.util.Map;
 
 public final class IndicatorServiceHelper {
-    public static Intent getServiceIntent(Context context) {
+    private static Intent getServiceIntent(Context context) {
         SharedPreferences sharedPref = PreferenceManager.getDefaultSharedPreferences(context);
 
         Intent serviceIntent = new Intent(context, NetSpeedIndicatorService.class);
@@ -23,5 +23,23 @@ public final class IndicatorServiceHelper {
         }
 
         return serviceIntent;
+    }
+
+    static void startService(Context context) {
+        context.startService(getServiceIntent(context));
+
+        PreferenceManager.getDefaultSharedPreferences(context)
+                .edit()
+                .putBoolean(Settings.KEY_INDICATOR_STARTED, true)
+                .apply();
+    }
+
+    static void stopService(Context context) {
+        context.stopService(new Intent(context, NetSpeedIndicatorService.class));
+
+        PreferenceManager.getDefaultSharedPreferences(context)
+                .edit()
+                .putBoolean(Settings.KEY_INDICATOR_STARTED, false)
+                .apply();
     }
 }
