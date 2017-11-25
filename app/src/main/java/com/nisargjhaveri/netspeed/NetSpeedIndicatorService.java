@@ -2,6 +2,7 @@ package com.nisargjhaveri.netspeed;
 
 import android.app.KeyguardManager;
 import android.app.Notification;
+import android.app.NotificationChannel;
 import android.app.NotificationManager;
 import android.app.PendingIntent;
 import android.app.Service;
@@ -17,6 +18,7 @@ import android.graphics.PorterDuff;
 import android.graphics.Typeface;
 import android.graphics.drawable.Icon;
 import android.net.TrafficStats;
+import android.os.Build;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.IBinder;
@@ -27,6 +29,7 @@ import java.util.Locale;
 
 public final class NetSpeedIndicatorService extends Service {
     private static final int NOTIFICATION_ID = 1;
+    private static final String NOTIFICATION_CHANNEL_ID = "indicator_channel";
 
     private Paint mIconSpeedPaint, mIconUnitPaint;
     private Bitmap mIconBitmap;
@@ -284,7 +287,19 @@ public final class NetSpeedIndicatorService extends Service {
         mNotificationContentView.setOnClickPendingIntent(R.id.notificationSettings, openSettingsIntent);
 
         mNotificationManager = (NotificationManager)getSystemService(Context.NOTIFICATION_SERVICE);
-        mNotificationBuilder = new Notification.Builder(this)
+
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+            NotificationChannel notificationChannel = new NotificationChannel(NOTIFICATION_CHANNEL_ID, getString(R.string.app_name), NotificationManager.IMPORTANCE_DEFAULT);
+            notificationChannel.enableLights(false);
+            notificationChannel.enableVibration(false);
+            mNotificationManager.createNotificationChannel(notificationChannel);
+
+            mNotificationBuilder = new Notification.Builder(this, NOTIFICATION_CHANNEL_ID);
+        } else {
+            mNotificationBuilder = new Notification.Builder(this);
+        }
+
+        mNotificationBuilder
                 .setSmallIcon(getIndicatorIcon(mTotalHumanSpeed))
                 .setPriority(Notification.PRIORITY_MAX)
                 .setVisibility(Notification.VISIBILITY_SECRET)
