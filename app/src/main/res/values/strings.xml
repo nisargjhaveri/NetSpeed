@@ -1,5 +1,5 @@
 <resources>
-    <string name="app_name">NetSpeed Indicator</string>
+    <string name="app_name">NetSpeed</string>
 
     <string name="kBps">kB/s</string>
     <string name="MBps">MB/s</string>
