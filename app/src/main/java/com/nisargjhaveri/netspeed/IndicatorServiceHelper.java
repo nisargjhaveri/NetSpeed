@@ -7,7 +7,7 @@ import android.preference.PreferenceManager;
 
 import java.util.Map;
 
-public final class IndicatorServiceHelper {
+final class IndicatorServiceHelper {
     private static Intent getServiceIntent(Context context) {
         SharedPreferences sharedPref = PreferenceManager.getDefaultSharedPreferences(context);
 
@@ -18,7 +18,7 @@ public final class IndicatorServiceHelper {
             if (entry.getValue() instanceof Boolean) {
                 serviceIntent.putExtra(entry.getKey(), (boolean)(Object)entry.getValue());
             } else if (entry.getValue() instanceof String) {
-                serviceIntent.putExtra(entry.getKey(), (String)(Object)entry.getValue());
+                serviceIntent.putExtra(entry.getKey(), (String)entry.getValue());
             }
         }
 
