@@ -19,7 +19,8 @@ public final class MainActivity extends AppCompatActivity {
                 } else {
                     stopIndicatorService();
                 }
-            } else if (!key.equals(Settings.KEY_START_ON_BOOT)) {
+            } else if (!key.equals(Settings.KEY_START_ON_BOOT)
+                    && !key.equals(Settings.KEY_INDICATOR_STARTED)) {
                 startIndicatorService();
             }
         }
