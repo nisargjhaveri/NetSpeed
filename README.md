@@ -3,7 +3,6 @@ Network Speed Indicator for Android M+.
 
 Show the current network speed in the status bar.
 
-## How to use?
-At this point, the apk for the app is not available.
+The app is available on Google Play.
 
-You can import this project in Android Studio and build, it should mostly work.
+<a href='https://play.google.com/store/apps/details?id=com.nisargjhaveri.netspeed&utm_source=github&pcampaignid=MKT-Other-global-all-co-prtnr-py-PartBadge-Mar2515-1'><img alt='Get it on Google Play' src='https://play.google.com/intl/en_gb/badges/images/generic/en_badge_web_generic.png' height=48px/></a>
