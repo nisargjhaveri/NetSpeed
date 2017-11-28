@@ -209,7 +209,9 @@ public final class NetSpeedIndicatorService extends Service {
                 getIndicatorIcon(mTotalHumanSpeed)
         );
 
-        mNotificationContentView.setTextViewText(
+        RemoteViews contentView = mNotificationContentView.clone();
+
+        contentView.setTextViewText(
                 R.id.notificationText,
                 String.format(
                         Locale.ENGLISH,"Down: %s %s     Up: %s %s",
@@ -217,6 +219,8 @@ public final class NetSpeedIndicatorService extends Service {
                         mUpHumanSpeed.speedValue, mUpHumanSpeed.speedUnit
                 )
         );
+
+        mNotificationBuilder.setContent(contentView);
 
         mNotificationManager
                 .notify(NOTIFICATION_ID, mNotificationBuilder.build());
