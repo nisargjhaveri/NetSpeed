@@ -1,7 +1,9 @@
-package com.nisargjhaveri.netspeed;
+package com.nisargjhaveri.netspeed.settings;
 
 import android.os.Bundle;
 import android.preference.PreferenceFragment;
+
+import com.nisargjhaveri.netspeed.R;
 
 public final class SettingsFragment extends PreferenceFragment {
 

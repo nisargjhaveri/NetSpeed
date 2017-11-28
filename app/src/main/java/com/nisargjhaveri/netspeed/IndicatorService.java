@@ -23,6 +23,9 @@ import android.os.IBinder;
 import android.view.View;
 import android.widget.RemoteViews;
 
+import com.nisargjhaveri.netspeed.settings.Settings;
+import com.nisargjhaveri.netspeed.settings.SettingsActivity;
+
 import java.util.Locale;
 
 public final class IndicatorService extends Service {

@@ -1,10 +1,13 @@
-package com.nisargjhaveri.netspeed;
+package com.nisargjhaveri.netspeed.settings;
 
 import android.content.SharedPreferences;
 import android.content.SharedPreferences.OnSharedPreferenceChangeListener;
 import android.os.Bundle;
 import android.preference.PreferenceManager;
 import android.support.v7.app.AppCompatActivity;
+
+import com.nisargjhaveri.netspeed.IndicatorServiceHelper;
+import com.nisargjhaveri.netspeed.R;
 
 public final class SettingsActivity extends AppCompatActivity {
 

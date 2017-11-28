@@ -5,9 +5,11 @@ import android.content.Intent;
 import android.content.SharedPreferences;
 import android.preference.PreferenceManager;
 
+import com.nisargjhaveri.netspeed.settings.Settings;
+
 import java.util.Map;
 
-final class IndicatorServiceHelper {
+public final class IndicatorServiceHelper {
     private static Intent getServiceIntent(Context context) {
         SharedPreferences sharedPref = PreferenceManager.getDefaultSharedPreferences(context);
 
@@ -25,7 +27,7 @@ final class IndicatorServiceHelper {
         return serviceIntent;
     }
 
-    static void startService(Context context) {
+    public static void startService(Context context) {
         context.startService(getServiceIntent(context));
 
         PreferenceManager.getDefaultSharedPreferences(context)
@@ -34,7 +36,7 @@ final class IndicatorServiceHelper {
                 .apply();
     }
 
-    static void stopService(Context context) {
+    public static void stopService(Context context) {
         context.stopService(new Intent(context, IndicatorService.class));
 
         PreferenceManager.getDefaultSharedPreferences(context)
