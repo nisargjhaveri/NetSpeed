@@ -214,7 +214,7 @@ public final class NetSpeedIndicatorService extends Service {
         contentView.setTextViewText(
                 R.id.notificationText,
                 String.format(
-                        Locale.ENGLISH,"Down: %s %s     Up: %s %s",
+                        Locale.ENGLISH, getString(R.string.notif_up_down_speed),
                         mDownHumanSpeed.speedValue, mDownHumanSpeed.speedUnit,
                         mUpHumanSpeed.speedValue, mUpHumanSpeed.speedUnit
                 )

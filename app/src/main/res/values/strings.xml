@@ -9,6 +9,39 @@
     <string name="plus99">99+</string>
     <string name="dash">-</string>
 
-    <string name="notification_icon">Notification Icon</string>
-    <string name="settings_button">Settings Button</string>
+    <!-- Notification Layout -->
+    <string name="notif_notification_icon">Notification Icon</string>
+    <string name="notif_settings_button">Settings Button</string>
+
+    <string name="notif_up_down_speed">Down: %s %s     Up: %s %s</string>
+
+    <!-- Settings -->
+    <string name="pref_enable_indicator_title">Enable indicator</string>
+    <string name="pref_enable_indicator_summary">Show NetSpeed indicator in the status bar</string>
+
+    <string name="pref_notification_settings_title">Notification Settings</string>
+
+    <string name="pref_settings_button_title">Settings button</string>
+    <string name="pref_settings_button_summary">Show a button in notification to open settings</string>
+
+    <string name="pref_notification_priority_title">Notification priority</string>
+    <string name="pref_notification_priority_max">Maximum</string>
+    <string name="pref_notification_priority_high">High</string>
+    <string name="pref_notification_priority_default">Normal</string>
+    <string name="pref_notification_priority_low">Low</string>
+
+    <string name="pref_lockscreen_notification_title">Lockscreen notification</string>
+    <string name="pref_lockscreen_notification_summary_on">Notification is visible on lockscreen</string>
+    <string name="pref_lockscreen_notification_summary_off">Notification is hidden from lockscreen</string>
+
+    <string name="pref_speed_unit_title">Speed units</string>
+    <string name="pref_speed_unit_Bps">Bytes per second</string>
+    <string name="pref_speed_unit_bps">Bits per second</string>
+
+    <string name="pref_general_options_title">General Options</string>
+
+    <string name="pref_start_on_boot_title">Start on boot</string>
+    <string name="pref_start_on_boot_summary">Start NetSpeed indicator on boot</string>
+    <string name="pref_start_on_boot_summary_on">The indicator will be started on boot</string>
+    <string name="pref_start_on_boot_summary_off">The indicator will not be started on boot</string>
 </resources>

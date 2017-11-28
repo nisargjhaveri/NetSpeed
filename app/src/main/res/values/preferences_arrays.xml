@@ -1,10 +1,10 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
     <string-array name="notification_priority_titles">
-        <item>Maximum</item>
-        <item>High</item>
-        <item>Normal</item>
-        <item>Low</item>
+        <item>@string/pref_notification_priority_max</item>
+        <item>@string/pref_notification_priority_high</item>
+        <item>@string/pref_notification_priority_default</item>
+        <item>@string/pref_notification_priority_low</item>
     </string-array>
     <string-array name="notification_priority_values">
         <item>max</item>
@@ -14,10 +14,9 @@
     </string-array>
 
     <string-array name="notification_speed_units_titles">
-        <item>Bytes per second</item>
-        <item>Bits per second</item>
+        <item>@string/pref_speed_unit_Bps</item>
+        <item>@string/pref_speed_unit_bps</item>
     </string-array>
-
     <string-array name="notification_speed_units_values">
         <item>Bps</item>
         <item>bps</item>

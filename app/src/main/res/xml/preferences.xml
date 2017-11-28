@@ -3,24 +3,24 @@
 
     <SwitchPreference
         android:key="indicatorEnabled"
-        android:title="Enable indicator"
-        android:summary="Show NetSpeed indicator in the status bar"
+        android:title="@string/pref_enable_indicator_title"
+        android:summary="@string/pref_enable_indicator_summary"
         android:disableDependentsState="false"
         android:defaultValue="true" />
 
     <PreferenceCategory
         android:dependency="indicatorEnabled"
-        android:title="Notification Settings">
+        android:title="@string/pref_notification_settings_title">
 
         <SwitchPreference
             android:key="showSettingsButton"
-            android:title="Settings button"
-            android:summary="Show a button in notification to open settings"
+            android:title="@string/pref_settings_button_title"
+            android:summary="@string/pref_settings_button_summary"
             android:defaultValue="false" />
 
         <ListPreference
             android:key="notificationPriority"
-            android:title="Notification priority"
+            android:title="@string/pref_notification_priority_title"
             android:summary="%s"
             android:entries="@array/notification_priority_titles"
             android:entryValues="@array/notification_priority_values"
@@ -28,14 +28,14 @@
 
         <SwitchPreference
             android:key="notificationOnLockScreen"
-            android:title="Lockscreen notification"
-            android:summaryOn="Notification is visible on lockscreen"
-            android:summaryOff="Notification is hidden from lockscreen"
+            android:title="@string/pref_lockscreen_notification_title"
+            android:summaryOn="@string/pref_lockscreen_notification_summary_on"
+            android:summaryOff="@string/pref_lockscreen_notification_summary_off"
             android:defaultValue="false" />
 
         <ListPreference
             android:key="indicatorSpeedUnit"
-            android:title="Speed units"
+            android:title="@string/pref_speed_unit_title"
             android:summary="%s"
             android:entries="@array/notification_speed_units_titles"
             android:entryValues="@array/notification_speed_units_values"
@@ -44,14 +44,14 @@
 
     <PreferenceCategory
         android:dependency="indicatorEnabled"
-        android:title="General Options">
+        android:title="@string/pref_general_options_title">
 
         <SwitchPreference
             android:key="startOnBoot"
-            android:title="Start on boot"
-            android:summary="Start NetSpeed indicator on boot"
-            android:summaryOn="The indicator will be started on boot"
-            android:summaryOff="The indicator will not be started on boot"
+            android:title="@string/pref_start_on_boot_title"
+            android:summary="@string/pref_start_on_boot_summary"
+            android:summaryOn="@string/pref_start_on_boot_summary_on"
+            android:summaryOff="@string/pref_start_on_boot_summary_off"
             android:defaultValue="true" />
     </PreferenceCategory>
 
