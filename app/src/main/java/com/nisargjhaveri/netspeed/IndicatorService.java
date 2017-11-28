@@ -284,7 +284,7 @@ public final class IndicatorService extends Service {
         mNotificationContentView = new RemoteViews(getPackageName(), R.layout.indicator_notification_view);
         mNotificationContentView.setImageViewBitmap(R.id.notificationIcon, mIconBitmap);
 
-        PendingIntent openSettingsIntent = PendingIntent.getActivity(this, 0, new Intent(this, MainActivity.class), 0);
+        PendingIntent openSettingsIntent = PendingIntent.getActivity(this, 0, new Intent(this, SettingsActivity.class), 0);
         mNotificationContentView.setOnClickPendingIntent(R.id.notificationSettings, openSettingsIntent);
 
         mNotificationManager = (NotificationManager)getSystemService(Context.NOTIFICATION_SERVICE);
