@@ -11,7 +11,7 @@ final class IndicatorServiceHelper {
     private static Intent getServiceIntent(Context context) {
         SharedPreferences sharedPref = PreferenceManager.getDefaultSharedPreferences(context);
 
-        Intent serviceIntent = new Intent(context, NetSpeedIndicatorService.class);
+        Intent serviceIntent = new Intent(context, IndicatorService.class);
 
         // Add all preferences to intent
         for (Map.Entry<String, ?> entry : sharedPref.getAll().entrySet()) {
@@ -35,7 +35,7 @@ final class IndicatorServiceHelper {
     }
 
     static void stopService(Context context) {
-        context.stopService(new Intent(context, NetSpeedIndicatorService.class));
+        context.stopService(new Intent(context, IndicatorService.class));
 
         PreferenceManager.getDefaultSharedPreferences(context)
                 .edit()

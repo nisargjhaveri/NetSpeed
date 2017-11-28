@@ -25,7 +25,7 @@ import android.widget.RemoteViews;
 
 import java.util.Locale;
 
-public final class NetSpeedIndicatorService extends Service {
+public final class IndicatorService extends Service {
     private static final int NOTIFICATION_ID = 1;
 
     private Paint mIconSpeedPaint, mIconUnitPaint;

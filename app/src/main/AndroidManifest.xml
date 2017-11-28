@@ -22,7 +22,7 @@
         </activity>
 
         <service
-            android:name=".NetSpeedIndicatorService"
+            android:name=".IndicatorService"
             android:enabled="true"
             android:exported="false"
             android:process=":background" />
