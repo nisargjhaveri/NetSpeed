@@ -9,7 +9,7 @@
         android:layout_height="18dp"
         android:layout_centerVertical="true"
         android:alpha="0.7"
-        android:contentDescription="Notification Icon"
+        android:contentDescription="@string/notification_icon"
         android:id="@+id/notificationIcon" />
 
     <TextView
@@ -33,7 +33,7 @@
         android:layout_alignParentEnd="true"
         android:alpha="0.5"
         android:visibility="gone"
-        android:contentDescription="Settings button"
+        android:contentDescription="@string/settings_button"
         android:id="@+id/notificationSettings" />
 
 </RelativeLayout>

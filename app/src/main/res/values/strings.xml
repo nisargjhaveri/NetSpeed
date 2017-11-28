@@ -8,4 +8,7 @@
 
     <string name="plus99">99+</string>
     <string name="dash">-</string>
+
+    <string name="notification_icon">Notification Icon</string>
+    <string name="settings_button">Settings Button</string>
 </resources>
