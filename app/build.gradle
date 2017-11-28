@@ -6,8 +6,8 @@ android {
         applicationId "com.nisargjhaveri.netspeed"
         minSdkVersion 23
         targetSdkVersion 25
-        versionCode 7
-        versionName "1.5.1"
+        versionCode 8
+        versionName "1.5.2"
         testInstrumentationRunner "android.support.test.runner.AndroidJUnitRunner"
         signingConfig signingConfigs.debug
     }
