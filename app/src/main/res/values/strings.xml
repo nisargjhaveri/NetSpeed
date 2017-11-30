@@ -1,6 +1,8 @@
 <resources>
     <string name="app_name">NetSpeed Indicator</string>
 
+    <string name="settings_activity_label">NetSpeed Preferences</string>
+
     <string name="kBps">kB/s</string>
     <string name="MBps">MB/s</string>
     <string name="kbps">kb/s</string>

@@ -4,7 +4,9 @@ import android.content.SharedPreferences;
 import android.content.SharedPreferences.OnSharedPreferenceChangeListener;
 import android.os.Bundle;
 import android.preference.PreferenceManager;
+import android.support.v4.app.NavUtils;
 import android.support.v7.app.AppCompatActivity;
+import android.view.MenuItem;
 
 import com.nisargjhaveri.netspeed.IndicatorServiceHelper;
 import com.nisargjhaveri.netspeed.R;
@@ -33,6 +35,7 @@ public final class SettingsActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_settings);
+        getSupportActionBar().setDisplayHomeAsUpEnabled(true);
 
         mSharedPref = PreferenceManager.getDefaultSharedPreferences(this);
 
@@ -51,6 +54,17 @@ public final class SettingsActivity extends AppCompatActivity {
     protected void onPause() {
         super.onPause();
         mSharedPref.unregisterOnSharedPreferenceChangeListener(mSettingsListener);
+    }
+
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+        switch (item.getItemId()) {
+            case android.R.id.home:
+                NavUtils.navigateUpFromSameTask(this);
+                return true;
+            default:
+                return super.onOptionsItemSelected(item);
+        }
     }
 
     private void startIndicatorService() {

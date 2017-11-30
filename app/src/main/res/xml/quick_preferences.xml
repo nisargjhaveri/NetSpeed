@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="utf-8"?>
+<PreferenceScreen xmlns:android="http://schemas.android.com/apk/res/android">
+
+    <SwitchPreference
+        android:key="indicatorEnabled"
+        android:title="@string/pref_enable_indicator_title"
+        android:summary="@string/pref_enable_indicator_summary"
+        android:disableDependentsState="false"
+        android:defaultValue="true" />
+
+    <Preference android:title="More Settings">
+        <intent
+            android:targetPackage="@string/application_id"
+            android:targetClass="com.nisargjhaveri.netspeed.settings.SettingsActivity"/>
+    </Preference>
+
+</PreferenceScreen>

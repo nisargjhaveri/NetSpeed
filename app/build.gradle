@@ -4,6 +4,8 @@ android {
     compileSdkVersion 26
     defaultConfig {
         applicationId "com.nisargjhaveri.netspeed"
+        resValue 'string', 'application_id', applicationId
+
         minSdkVersion 23
         targetSdkVersion 25
         versionCode 8
@@ -18,6 +20,9 @@ android {
         }
         debug {
             applicationIdSuffix ".debug"
+        }
+        all {
+            resValue 'string', 'application_id', defaultConfig.applicationId + applicationIdSuffix
         }
     }
 }

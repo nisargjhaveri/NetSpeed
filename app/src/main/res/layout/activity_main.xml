@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    tools:context="com.nisargjhaveri.netspeed.MainActivity">
+
+    <fragment
+        android:id="@+id/fragment_main_indicator"
+        android:name="com.nisargjhaveri.netspeed.MainIndicatorFragment"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_centerHorizontal="true"
+        tools:layout="@layout/fragment_main_indicator"/>
+
+    <fragment
+        android:id="@+id/fragment_main_settings"
+        android:name="com.nisargjhaveri.netspeed.settings.SettingsFragment"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_below="@id/fragment_main_indicator"
+        app:quick_settings="true"/>
+
+</RelativeLayout>
