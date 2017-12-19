@@ -174,6 +174,7 @@ public final class IndicatorService extends Service {
             mNotificationCreated = true;
         }
 
+        // TODO: don't restart if not needed
         restartNotifying();
 
         return START_REDELIVER_INTENT;

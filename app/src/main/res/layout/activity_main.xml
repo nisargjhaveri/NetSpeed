@@ -19,7 +19,8 @@
         android:name="com.nisargjhaveri.netspeed.settings.SettingsFragment"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_below="@id/fragment_main_indicator"
+        android:layout_alignParentBottom="true"
+        android:layout_marginBottom="8dp"
         app:quick_settings="true"/>
 
 </RelativeLayout>
