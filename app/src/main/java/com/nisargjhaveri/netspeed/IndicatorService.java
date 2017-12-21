@@ -1,45 +1,19 @@
 package com.nisargjhaveri.netspeed;
 
 import android.app.KeyguardManager;
-import android.app.Notification;
-import android.app.NotificationManager;
-import android.app.PendingIntent;
 import android.app.Service;
 import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
-import android.graphics.Bitmap;
-import android.graphics.Canvas;
-import android.graphics.Color;
-import android.graphics.Paint;
-import android.graphics.PorterDuff;
-import android.graphics.Typeface;
-import android.graphics.drawable.Icon;
 import android.net.TrafficStats;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.IBinder;
-import android.view.View;
-import android.widget.RemoteViews;
 
 import com.nisargjhaveri.netspeed.settings.Settings;
-import com.nisargjhaveri.netspeed.settings.SettingsActivity;
-
-import java.util.Locale;
 
 public final class IndicatorService extends Service {
-    private static final int NOTIFICATION_ID = 1;
-
-    private Paint mIconSpeedPaint, mIconUnitPaint;
-    private Bitmap mIconBitmap;
-    private Canvas mIconCanvas;
-
-    private RemoteViews mNotificationContentView;
-
-    private NotificationManager mNotificationManager;
-    private Notification.Builder mNotificationBuilder;
-
     private KeyguardManager mKeyguardManager;
 
     private long mLastRxBytes = 0;
@@ -50,7 +24,7 @@ public final class IndicatorService extends Service {
     private HumanSpeed mDownHumanSpeed;
     private HumanSpeed mUpHumanSpeed;
 
-    private boolean mIsSpeedUnitBits = false;
+    private IndicatorNotification mIndicatorNotification = new IndicatorNotification();
 
     private boolean mNotificationCreated = false;
 
@@ -62,7 +36,23 @@ public final class IndicatorService extends Service {
     private final Runnable mHandlerRunnable = new Runnable() {
         @Override
         public void run() {
-            updateNotification();
+            long currentRxBytes = TrafficStats.getTotalRxBytes();
+            long currentTxBytes = TrafficStats.getTotalTxBytes();
+            long usedRxBytes = currentRxBytes - mLastRxBytes;
+            long usedTxBytes = currentTxBytes - mLastTxBytes;
+            long currentTime = System.currentTimeMillis();
+            long usedTime = currentTime - mLastTime;
+
+            mLastRxBytes = currentRxBytes;
+            mLastTxBytes = currentTxBytes;
+            mLastTime = currentTime;
+
+            mTotalHumanSpeed.calcSpeed(usedRxBytes + usedTxBytes, usedTime);
+            mDownHumanSpeed.calcSpeed(usedRxBytes, usedTime);
+            mUpHumanSpeed.calcSpeed(usedTxBytes, usedTime);
+
+            mIndicatorNotification.updateNotification(mTotalHumanSpeed, mDownHumanSpeed, mUpHumanSpeed);
+
             mHandler.postDelayed(this, 1000);
         }
     };
@@ -77,64 +67,20 @@ public final class IndicatorService extends Service {
             if (intent.getAction().equals(Intent.ACTION_SCREEN_OFF)) {
                 pauseNotifying();
                 if (!mNotificationOnLockScreen) {
-                    hideNotification();
+                    mIndicatorNotification.hideNotification();
                 }
-                updateNotification();
+                mIndicatorNotification.updateNotification(mTotalHumanSpeed, mDownHumanSpeed, mUpHumanSpeed);
             } else if (intent.getAction().equals(Intent.ACTION_SCREEN_ON)) {
                 if (mNotificationOnLockScreen || !mKeyguardManager.isKeyguardLocked()) {
-                    showNotification();
+                    mIndicatorNotification.showNotification();
                     restartNotifying();
                 }
             } else if (intent.getAction().equals(Intent.ACTION_USER_PRESENT)) {
-                showNotification();
+                mIndicatorNotification.showNotification();
                 restartNotifying();
             }
         }
     };
-
-    private class HumanSpeed {
-        String speedValue;
-        String speedUnit;
-
-        HumanSpeed() {
-            setSpeed(0);
-        }
-
-        HumanSpeed setSpeed(long speed) {
-            if (mIsSpeedUnitBits) {
-                speed *= 8;
-            }
-
-            if (speed < 1000000) {
-                this.speedUnit = getString(mIsSpeedUnitBits ? R.string.kbps : R.string.kBps);
-                this.speedValue = String.valueOf(speed / 1000);
-            } else if (speed >= 1000000) {
-                this.speedUnit = getString(mIsSpeedUnitBits ? R.string.Mbps : R.string.MBps);
-
-                if (speed < 10000000) {
-                    this.speedValue = String.format(Locale.ENGLISH, "%.1f", speed / 1000000.0);
-                } else if (speed < 100000000) {
-                    this.speedValue = String.valueOf(speed / 1000000);
-                } else {
-                    this.speedValue = getString(R.string.plus99);
-                }
-            } else {
-                this.speedValue = getString(R.string.dash);
-                this.speedUnit = getString(R.string.dash);
-            }
-
-            return this;
-        }
-
-        HumanSpeed calcSpeed(long bytesUsed, long timeTaken) {
-            long speed = 0;
-            if (timeTaken > 0) {
-                speed = bytesUsed * 1000 / timeTaken;
-            }
-
-            return setSpeed(speed);
-        }
-    }
 
     @Override
     public IBinder onBind(Intent intent) {
@@ -147,7 +93,7 @@ public final class IndicatorService extends Service {
         pauseNotifying();
         unregisterReceiver(mScreenBroadcastReceiver);
 
-        stopForeground(true);
+        removeNotification();
     }
 
     public void onCreate() {
@@ -157,26 +103,38 @@ public final class IndicatorService extends Service {
         mLastTxBytes = TrafficStats.getTotalTxBytes();
         mLastTime = System.currentTimeMillis();
 
-        mTotalHumanSpeed = new HumanSpeed();
-        mDownHumanSpeed = new HumanSpeed();
-        mUpHumanSpeed = new HumanSpeed();
+        mTotalHumanSpeed = new HumanSpeed(this);
+        mDownHumanSpeed = new HumanSpeed(this);
+        mUpHumanSpeed = new HumanSpeed(this);
 
-        setupIndicatorIconGenerator();
-        setupNotifications();
+        mKeyguardManager = (KeyguardManager)getSystemService(Context.KEYGUARD_SERVICE);
+
+        mIndicatorNotification.setup(this, mTotalHumanSpeed);
     }
 
     @Override
     public int onStartCommand(Intent intent, int flags, int startId) {
         handleConfigChange(intent.getExtras());
 
-        if (!mNotificationCreated) {
-            startForeground(NOTIFICATION_ID, mNotificationBuilder.build());
-            mNotificationCreated = true;
-        }
+        createNotification();
 
         restartNotifying();
 
         return START_REDELIVER_INTENT;
+    }
+
+    private void createNotification() {
+        if (!mNotificationCreated) {
+            mIndicatorNotification.start(this);
+            mNotificationCreated = true;
+        }
+    }
+
+    private void removeNotification() {
+        if (mNotificationCreated) {
+            mIndicatorNotification.stop(this);
+            mNotificationCreated = false;
+        }
     }
 
     private void pauseNotifying() {
@@ -188,88 +146,15 @@ public final class IndicatorService extends Service {
         mHandler.post(mHandlerRunnable);
     }
 
-    private void hideNotification() {
-        mNotificationBuilder.setPriority(Notification.PRIORITY_MIN);
-    }
-
-    private void showNotification() {
-        mNotificationBuilder.setPriority(mNotificationPriority);
-    }
-
-    private void updateNotification() {
-        long currentRxBytes = TrafficStats.getTotalRxBytes();
-        long currentTxBytes = TrafficStats.getTotalTxBytes();
-        long usedRxBytes = currentRxBytes - mLastRxBytes;
-        long usedTxBytes = currentTxBytes - mLastTxBytes;
-        long currentTime = System.currentTimeMillis();
-        long usedTime = currentTime - mLastTime;
-
-        mTotalHumanSpeed.calcSpeed(usedRxBytes + usedTxBytes, usedTime);
-        mDownHumanSpeed.calcSpeed(usedRxBytes, usedTime);
-        mUpHumanSpeed.calcSpeed(usedTxBytes, usedTime);
-
-        mNotificationBuilder.setSmallIcon(
-                getIndicatorIcon(mTotalHumanSpeed)
-        );
-
-        RemoteViews contentView = mNotificationContentView.clone();
-
-        contentView.setTextViewText(
-                R.id.notificationText,
-                String.format(
-                        Locale.ENGLISH, getString(R.string.notif_up_down_speed),
-                        mDownHumanSpeed.speedValue, mDownHumanSpeed.speedUnit,
-                        mUpHumanSpeed.speedValue, mUpHumanSpeed.speedUnit
-                )
-        );
-
-        mNotificationBuilder.setContent(contentView);
-
-        mNotificationManager
-                .notify(NOTIFICATION_ID, mNotificationBuilder.build());
-
-        mLastRxBytes = currentRxBytes;
-        mLastTxBytes = currentTxBytes;
-        mLastTime = currentTime;
-    }
-
-    private void handleConfigChange(Bundle extras) {
-        // Show/Hide settings button
-        if (extras.getBoolean(Settings.KEY_SHOW_SETTINGS_BUTTON, false)) {
-            mNotificationContentView.setViewVisibility(R.id.notificationSettings, View.VISIBLE);
-        } else {
-            mNotificationContentView.setViewVisibility(R.id.notificationSettings, View.GONE);
-        }
-
-        // Notification priority
-        switch (extras.getString(Settings.KEY_NOTIFICATION_PRIORITY, "max")) {
-            case "low":
-                mNotificationPriority = Notification.PRIORITY_LOW;
-                break;
-            case "default":
-                mNotificationPriority = Notification.PRIORITY_DEFAULT;
-                break;
-            case "high":
-                mNotificationPriority = Notification.PRIORITY_HIGH;
-                break;
-            case "max":
-                mNotificationPriority = Notification.PRIORITY_MAX;
-                break;
-        }
-        mNotificationBuilder.setPriority(mNotificationPriority);
-
+    private void handleConfigChange(Bundle config) {
         // Show/Hide on lock screen
         IntentFilter screenBroadcastIntentFilter = new IntentFilter();
         screenBroadcastIntentFilter.addAction(Intent.ACTION_SCREEN_ON);
         screenBroadcastIntentFilter.addAction(Intent.ACTION_SCREEN_OFF);
 
-        mNotificationOnLockScreen = extras.getBoolean(Settings.KEY_NOTIFICATION_ON_LOCK_SCREEN, false);
+        mNotificationOnLockScreen = config.getBoolean(Settings.KEY_NOTIFICATION_ON_LOCK_SCREEN, false);
 
-        if (mNotificationOnLockScreen) {
-            mNotificationBuilder.setVisibility(Notification.VISIBILITY_PUBLIC);
-        } else {
-            mNotificationBuilder.setVisibility(Notification.VISIBILITY_SECRET);
-
+        if (!mNotificationOnLockScreen) {
             screenBroadcastIntentFilter.addAction(Intent.ACTION_USER_PRESENT);
             screenBroadcastIntentFilter.setPriority(999);
         }
@@ -280,51 +165,11 @@ public final class IndicatorService extends Service {
         registerReceiver(mScreenBroadcastReceiver, screenBroadcastIntentFilter);
 
         // Speed unit, bps or Bps
-        mIsSpeedUnitBits = extras.getString(Settings.KEY_INDICATOR_SPEED_UNIT, "Bps").equals("bps");
-    }
+        boolean isSpeedUnitBits = config.getString(Settings.KEY_INDICATOR_SPEED_UNIT, "Bps").equals("bps");
+        mTotalHumanSpeed.setIsSpeedUnitBits(isSpeedUnitBits);
+        mDownHumanSpeed.setIsSpeedUnitBits(isSpeedUnitBits);
+        mUpHumanSpeed.setIsSpeedUnitBits(isSpeedUnitBits);
 
-    private void setupNotifications() {
-        mNotificationContentView = new RemoteViews(getPackageName(), R.layout.view_indicator_notification);
-        mNotificationContentView.setImageViewBitmap(R.id.notificationIcon, mIconBitmap);
-
-        PendingIntent openSettingsIntent = PendingIntent.getActivity(this, 0, new Intent(this, SettingsActivity.class), 0);
-        mNotificationContentView.setOnClickPendingIntent(R.id.notificationSettings, openSettingsIntent);
-
-        mNotificationManager = (NotificationManager)getSystemService(Context.NOTIFICATION_SERVICE);
-        mNotificationBuilder = new Notification.Builder(this)
-                .setSmallIcon(getIndicatorIcon(mTotalHumanSpeed))
-                .setPriority(Notification.PRIORITY_MAX)
-                .setVisibility(Notification.VISIBILITY_SECRET)
-                .setContent(mNotificationContentView)
-                .setOngoing(true)
-                .setLocalOnly(true);
-
-        mKeyguardManager = (KeyguardManager)getSystemService(Context.KEYGUARD_SERVICE);
-    }
-
-    private void setupIndicatorIconGenerator() {
-        mIconSpeedPaint = new Paint();
-        mIconSpeedPaint.setAntiAlias(true);
-        mIconSpeedPaint.setTextSize(65);
-        mIconSpeedPaint.setTextAlign(Paint.Align.CENTER);
-        mIconSpeedPaint.setTypeface(Typeface.create("sans-serif-condensed", Typeface.BOLD));
-
-        mIconUnitPaint = new Paint();
-        mIconUnitPaint.setAntiAlias(true);
-        mIconUnitPaint.setTextSize(40);
-        mIconUnitPaint.setTextAlign(Paint.Align.CENTER);
-        mIconUnitPaint.setTypeface(Typeface.DEFAULT_BOLD);
-
-        mIconBitmap = Bitmap.createBitmap(96, 96, Bitmap.Config.ALPHA_8);
-
-        mIconCanvas = new Canvas(mIconBitmap);
-    }
-
-    private Icon getIndicatorIcon(HumanSpeed speed) {
-        mIconCanvas.drawColor(Color.TRANSPARENT, PorterDuff.Mode.CLEAR);
-        mIconCanvas.drawText(speed.speedValue, 48, 52, mIconSpeedPaint);
-        mIconCanvas.drawText(speed.speedUnit, 48, 95, mIconUnitPaint);
-
-        return Icon.createWithBitmap(mIconBitmap);
+        mIndicatorNotification.handleConfigChange(config);
     }
 }
