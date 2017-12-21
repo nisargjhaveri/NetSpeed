@@ -46,10 +46,6 @@ public final class SettingsFragment extends PreferenceFragment {
         }
 
         mSharedPref = PreferenceManager.getDefaultSharedPreferences(mContext);
-
-        if (mSharedPref.getBoolean(Settings.KEY_INDICATOR_ENABLED, true)) {
-            startIndicatorService();
-        }
     }
 
     @Override
@@ -64,6 +60,10 @@ public final class SettingsFragment extends PreferenceFragment {
     public void onResume() {
         super.onResume();
         mSharedPref.registerOnSharedPreferenceChangeListener(mSettingsListener);
+
+        if (mSharedPref.getBoolean(Settings.KEY_INDICATOR_ENABLED, true)) {
+            startIndicatorService();
+        }
     }
 
     @Override
