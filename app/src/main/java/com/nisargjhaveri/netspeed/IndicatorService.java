@@ -24,11 +24,10 @@ public final class IndicatorService extends Service {
     private HumanSpeed mDownHumanSpeed;
     private HumanSpeed mUpHumanSpeed;
 
-    private IndicatorNotification mIndicatorNotification = new IndicatorNotification();
+    private IndicatorNotification mIndicatorNotification;
 
     private boolean mNotificationCreated = false;
 
-    private int mNotificationPriority;
     private boolean mNotificationOnLockScreen;
 
     final private Handler mHandler = new Handler();
@@ -109,7 +108,7 @@ public final class IndicatorService extends Service {
 
         mKeyguardManager = (KeyguardManager)getSystemService(Context.KEYGUARD_SERVICE);
 
-        mIndicatorNotification.setup(this, mTotalHumanSpeed);
+        mIndicatorNotification = new IndicatorNotification(this);
     }
 
     @Override
@@ -170,6 +169,7 @@ public final class IndicatorService extends Service {
         mDownHumanSpeed.setIsSpeedUnitBits(isSpeedUnitBits);
         mUpHumanSpeed.setIsSpeedUnitBits(isSpeedUnitBits);
 
+        // Pass it to notification
         mIndicatorNotification.handleConfigChange(config);
     }
 }

@@ -38,6 +38,12 @@ final class IndicatorNotification {
 
     private int mNotificationPriority;
 
+    IndicatorNotification(Context context) {
+        mContext = context;
+
+        setup();
+    }
+
     void start(Service serviceContext) {
         serviceContext.startForeground(NOTIFICATION_ID, mNotificationBuilder.build());
     }
@@ -108,8 +114,7 @@ final class IndicatorNotification {
         }
     }
 
-    void setup(Context context, HumanSpeed totalHumanSpeed) {
-        mContext = context;
+    private void setup() {
         setupIndicatorIconGenerator();
 
         mNotificationContentView = new RemoteViews(mContext.getPackageName(), R.layout.view_indicator_notification);
@@ -120,7 +125,7 @@ final class IndicatorNotification {
 
         mNotificationManager = (NotificationManager)mContext.getSystemService(Context.NOTIFICATION_SERVICE);
         mNotificationBuilder = new Notification.Builder(mContext)
-                .setSmallIcon(getIndicatorIcon(totalHumanSpeed))
+                .setSmallIcon(getIndicatorIcon(new HumanSpeed(mContext)))
                 .setPriority(Notification.PRIORITY_MAX)
                 .setVisibility(Notification.VISIBILITY_SECRET)
                 .setContent(mNotificationContentView)
