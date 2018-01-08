@@ -10,7 +10,7 @@ import com.nisargjhaveri.netspeed.settings.Settings;
 import java.util.Map;
 
 public final class IndicatorServiceHelper {
-    private static Intent getServiceIntent(Context context) {
+    private static Intent getServiceStartIntent(Context context) {
         SharedPreferences sharedPref = PreferenceManager.getDefaultSharedPreferences(context);
 
         Intent serviceIntent = new Intent(context, IndicatorService.class);
@@ -28,7 +28,7 @@ public final class IndicatorServiceHelper {
     }
 
     public static void startService(Context context) {
-        context.startService(getServiceIntent(context));
+        context.startService(getServiceStartIntent(context));
 
         PreferenceManager.getDefaultSharedPreferences(context)
                 .edit()

@@ -20,15 +20,13 @@ public final class SettingsFragment extends PreferenceFragment {
     private final SharedPreferences.OnSharedPreferenceChangeListener mSettingsListener = new SharedPreferences.OnSharedPreferenceChangeListener() {
         @Override
         public void onSharedPreferenceChanged(SharedPreferences sharedPreferences, String key) {
-            if (key.equals(Settings.KEY_INDICATOR_ENABLED)) {
-                if (mSharedPref.getBoolean(Settings.KEY_INDICATOR_ENABLED, true)) {
-                    startIndicatorService();
-                } else {
-                    stopIndicatorService();
-                }
-            } else if (!key.equals(Settings.KEY_START_ON_BOOT)
+            if (!key.equals(Settings.KEY_START_ON_BOOT)
                     && !key.equals(Settings.KEY_INDICATOR_STARTED)) {
                 startIndicatorService();
+            }
+            if (key.equals(Settings.KEY_INDICATOR_ENABLED)
+                    && !mSharedPref.getBoolean(Settings.KEY_INDICATOR_ENABLED, true)) {
+                stopIndicatorService();
             }
         }
     };

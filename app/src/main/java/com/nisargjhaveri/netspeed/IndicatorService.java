@@ -50,7 +50,9 @@ public final class IndicatorService extends Service {
             mDownHumanSpeed.calcSpeed(usedRxBytes, usedTime);
             mUpHumanSpeed.calcSpeed(usedTxBytes, usedTime);
 
-            mIndicatorNotification.updateNotification(mTotalHumanSpeed, mDownHumanSpeed, mUpHumanSpeed);
+            if (mIndicatorNotification != null) {
+                mIndicatorNotification.updateNotification(mTotalHumanSpeed, mDownHumanSpeed, mUpHumanSpeed);
+            }
 
             mHandler.postDelayed(this, 1000);
         }
@@ -64,19 +66,20 @@ public final class IndicatorService extends Service {
             }
 
             if (intent.getAction().equals(Intent.ACTION_SCREEN_OFF)) {
-                pauseNotifying();
+                pauseUpdating();
                 if (!mNotificationOnLockScreen) {
                     mIndicatorNotification.hideNotification();
                 }
                 mIndicatorNotification.updateNotification(mTotalHumanSpeed, mDownHumanSpeed, mUpHumanSpeed);
             } else if (intent.getAction().equals(Intent.ACTION_SCREEN_ON)) {
-                if (mNotificationOnLockScreen || !mKeyguardManager.isKeyguardLocked()) {
+                if (mNotificationOnLockScreen
+                        || (mKeyguardManager != null && !mKeyguardManager.isKeyguardLocked())) {
                     mIndicatorNotification.showNotification();
-                    restartNotifying();
+                    restartUpdating();
                 }
             } else if (intent.getAction().equals(Intent.ACTION_USER_PRESENT)) {
                 mIndicatorNotification.showNotification();
-                restartNotifying();
+                restartUpdating();
             }
         }
     };
@@ -89,8 +92,7 @@ public final class IndicatorService extends Service {
     public void onDestroy() {
         super.onDestroy();
 
-        pauseNotifying();
-        unregisterReceiver(mScreenBroadcastReceiver);
+        pauseUpdating();
 
         removeNotification();
     }
@@ -105,25 +107,26 @@ public final class IndicatorService extends Service {
         mTotalHumanSpeed = new HumanSpeed(this);
         mDownHumanSpeed = new HumanSpeed(this);
         mUpHumanSpeed = new HumanSpeed(this);
-
-        mKeyguardManager = (KeyguardManager)getSystemService(Context.KEYGUARD_SERVICE);
-
-        mIndicatorNotification = new IndicatorNotification(this);
     }
 
     @Override
     public int onStartCommand(Intent intent, int flags, int startId) {
         handleConfigChange(intent.getExtras());
 
-        createNotification();
-
         // TODO: don't restart if not needed
-        restartNotifying();
+        restartUpdating();
 
         return START_REDELIVER_INTENT;
     }
 
-    private void createNotification() {
+    private void createNotification(Bundle config) {
+        if (mKeyguardManager == null) {
+            mKeyguardManager = (KeyguardManager)getSystemService(Context.KEYGUARD_SERVICE);
+        }
+        if (mIndicatorNotification == null) {
+            mIndicatorNotification = new IndicatorNotification(this);
+        }
+        mIndicatorNotification.handleConfigChange(config);
         if (!mNotificationCreated) {
             mIndicatorNotification.start(this);
             mNotificationCreated = true;
@@ -132,21 +135,32 @@ public final class IndicatorService extends Service {
 
     private void removeNotification() {
         if (mNotificationCreated) {
+            unregisterReceiver(mScreenBroadcastReceiver);
             mIndicatorNotification.stop(this);
+            mIndicatorNotification = null;
             mNotificationCreated = false;
         }
     }
 
-    private void pauseNotifying() {
+    private void pauseUpdating() {
         mHandler.removeCallbacks(mHandlerRunnable);
     }
 
-    private void restartNotifying() {
+    private void restartUpdating() {
         mHandler.removeCallbacks(mHandlerRunnable);
         mHandler.post(mHandlerRunnable);
     }
 
     private void handleConfigChange(Bundle config) {
+        boolean isNotificationEnabled = config.getBoolean(Settings.KEY_INDICATOR_ENABLED, true);
+        if (!isNotificationEnabled) {
+            removeNotification();
+            return;
+        }
+
+        // Pass it to notification
+        createNotification(config);
+
         // Show/Hide on lock screen
         IntentFilter screenBroadcastIntentFilter = new IntentFilter();
         screenBroadcastIntentFilter.addAction(Intent.ACTION_SCREEN_ON);
@@ -159,8 +173,10 @@ public final class IndicatorService extends Service {
             screenBroadcastIntentFilter.setPriority(999);
         }
 
-        if (mNotificationCreated) {
+        try {
             unregisterReceiver(mScreenBroadcastReceiver);
+        } catch (IllegalArgumentException e) {
+            // Not registered. Do nothing.
         }
         registerReceiver(mScreenBroadcastReceiver, screenBroadcastIntentFilter);
 
@@ -169,8 +185,5 @@ public final class IndicatorService extends Service {
         mTotalHumanSpeed.setIsSpeedUnitBits(isSpeedUnitBits);
         mDownHumanSpeed.setIsSpeedUnitBits(isSpeedUnitBits);
         mUpHumanSpeed.setIsSpeedUnitBits(isSpeedUnitBits);
-
-        // Pass it to notification
-        mIndicatorNotification.handleConfigChange(config);
     }
 }
