@@ -10,8 +10,13 @@ import android.net.TrafficStats;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.IBinder;
+import android.os.Message;
+import android.os.Messenger;
+import android.os.RemoteException;
 
 import com.nisargjhaveri.netspeed.settings.Settings;
+
+import java.util.ArrayList;
 
 public final class IndicatorService extends Service {
     private KeyguardManager mKeyguardManager;
@@ -20,9 +25,9 @@ public final class IndicatorService extends Service {
     private long mLastTxBytes = 0;
     private long mLastTime = 0;
 
-    private HumanSpeed mTotalHumanSpeed;
-    private HumanSpeed mDownHumanSpeed;
-    private HumanSpeed mUpHumanSpeed;
+    private Speed mSpeed;
+
+    ArrayList<Messenger> mClients = new ArrayList<>();
 
     private IndicatorNotification mIndicatorNotification;
 
@@ -46,12 +51,23 @@ public final class IndicatorService extends Service {
             mLastTxBytes = currentTxBytes;
             mLastTime = currentTime;
 
-            mTotalHumanSpeed.calcSpeed(usedRxBytes + usedTxBytes, usedTime);
-            mDownHumanSpeed.calcSpeed(usedRxBytes, usedTime);
-            mUpHumanSpeed.calcSpeed(usedTxBytes, usedTime);
+            mSpeed.calcSpeed(usedTime, usedRxBytes, usedTxBytes);
 
             if (mIndicatorNotification != null) {
-                mIndicatorNotification.updateNotification(mTotalHumanSpeed, mDownHumanSpeed, mUpHumanSpeed);
+                mIndicatorNotification.updateNotification(mSpeed);
+            }
+
+            for (int i = mClients.size() - 1; i >= 0; --i) {
+                try {
+                    mClients.get(i).send(
+                            Message.obtain(null,
+                                    IndicatorServiceConnector.MSG_UPDATE_SPEED,
+                                    mSpeed.getBundle())
+                    );
+                } catch (RemoteException e) {
+                    // The client is dead. Remove it from the list.
+                    mClients.remove(i);
+                }
             }
 
             mHandler.postDelayed(this, 1000);
@@ -70,7 +86,7 @@ public final class IndicatorService extends Service {
                 if (!mNotificationOnLockScreen) {
                     mIndicatorNotification.hideNotification();
                 }
-                mIndicatorNotification.updateNotification(mTotalHumanSpeed, mDownHumanSpeed, mUpHumanSpeed);
+                mIndicatorNotification.updateNotification(mSpeed);
             } else if (intent.getAction().equals(Intent.ACTION_SCREEN_ON)) {
                 if (mNotificationOnLockScreen
                         || (mKeyguardManager != null && !mKeyguardManager.isKeyguardLocked())) {
@@ -86,7 +102,23 @@ public final class IndicatorService extends Service {
 
     @Override
     public IBinder onBind(Intent intent) {
-        return null;
+        return new Messenger(new Handler(new Handler.Callback() {
+            @Override
+            public boolean handleMessage(Message msg) {
+                boolean handled = true;
+                switch (msg.what) {
+                    case IndicatorServiceConnector.MSG_REGISTER_CLIENT:
+                        mClients.add(msg.replyTo);
+                        break;
+                    case IndicatorServiceConnector.MSG_UNREGISTER_CLIENT:
+                        mClients.remove(msg.replyTo);
+                        break;
+                    default:
+                        handled = false;
+                }
+                return !handled;
+            }
+        })).getBinder();
     }
 
     public void onDestroy() {
@@ -104,9 +136,7 @@ public final class IndicatorService extends Service {
         mLastTxBytes = TrafficStats.getTotalTxBytes();
         mLastTime = System.currentTimeMillis();
 
-        mTotalHumanSpeed = new HumanSpeed(this);
-        mDownHumanSpeed = new HumanSpeed(this);
-        mUpHumanSpeed = new HumanSpeed(this);
+        mSpeed = new Speed(this);
     }
 
     @Override
@@ -182,8 +212,6 @@ public final class IndicatorService extends Service {
 
         // Speed unit, bps or Bps
         boolean isSpeedUnitBits = config.getString(Settings.KEY_INDICATOR_SPEED_UNIT, "Bps").equals("bps");
-        mTotalHumanSpeed.setIsSpeedUnitBits(isSpeedUnitBits);
-        mDownHumanSpeed.setIsSpeedUnitBits(isSpeedUnitBits);
-        mUpHumanSpeed.setIsSpeedUnitBits(isSpeedUnitBits);
+        mSpeed.setIsSpeedUnitBits(isSpeedUnitBits);
     }
 }

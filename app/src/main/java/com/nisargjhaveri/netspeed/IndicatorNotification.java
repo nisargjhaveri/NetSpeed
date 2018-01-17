@@ -60,9 +60,9 @@ final class IndicatorNotification {
         mNotificationBuilder.setPriority(mNotificationPriority);
     }
 
-    void updateNotification(HumanSpeed totalHumanSpeed, HumanSpeed downHumanSpeed, HumanSpeed upHumanSpeed) {
+    void updateNotification(Speed speed) {
         mNotificationBuilder.setSmallIcon(
-                getIndicatorIcon(totalHumanSpeed)
+                getIndicatorIcon(speed.total.speedValue, speed.total.speedUnit)
         );
 
         RemoteViews contentView = mNotificationContentView.clone();
@@ -71,8 +71,8 @@ final class IndicatorNotification {
                 R.id.notificationText,
                 String.format(
                         Locale.ENGLISH, mContext.getString(R.string.notif_up_down_speed),
-                        downHumanSpeed.speedValue, downHumanSpeed.speedUnit,
-                        upHumanSpeed.speedValue, upHumanSpeed.speedUnit
+                        speed.down.speedValue, speed.down.speedUnit,
+                        speed.up.speedValue, speed.up.speedUnit
                 )
         );
 
@@ -125,7 +125,7 @@ final class IndicatorNotification {
 
         mNotificationManager = (NotificationManager)mContext.getSystemService(Context.NOTIFICATION_SERVICE);
         mNotificationBuilder = new Notification.Builder(mContext)
-                .setSmallIcon(getIndicatorIcon(new HumanSpeed(mContext)))
+                .setSmallIcon(getIndicatorIcon("", ""))
                 .setPriority(Notification.PRIORITY_MAX)
                 .setVisibility(Notification.VISIBILITY_SECRET)
                 .setContent(mNotificationContentView)
@@ -151,10 +151,10 @@ final class IndicatorNotification {
         mIconCanvas = new Canvas(mIconBitmap);
     }
 
-    private Icon getIndicatorIcon(HumanSpeed speed) {
+    private Icon getIndicatorIcon(String speedValue, String speedUnit) {
         mIconCanvas.drawColor(Color.TRANSPARENT, PorterDuff.Mode.CLEAR);
-        mIconCanvas.drawText(speed.speedValue, 48, 52, mIconSpeedPaint);
-        mIconCanvas.drawText(speed.speedUnit, 48, 95, mIconUnitPaint);
+        mIconCanvas.drawText(speedValue, 48, 52, mIconSpeedPaint);
+        mIconCanvas.drawText(speedUnit, 48, 95, mIconUnitPaint);
 
         return Icon.createWithBitmap(mIconBitmap);
     }
