@@ -35,6 +35,7 @@ public final class IndicatorService extends Service {
 
     private boolean mNotificationOnLockScreen;
 
+    private boolean mIsUpdating = false;
     final private Handler mHandler = new Handler();
 
     private final Runnable mHandlerRunnable = new Runnable() {
@@ -58,16 +59,7 @@ public final class IndicatorService extends Service {
             }
 
             for (int i = mClients.size() - 1; i >= 0; --i) {
-                try {
-                    mClients.get(i).send(
-                            Message.obtain(null,
-                                    IndicatorServiceConnector.MSG_UPDATE_SPEED,
-                                    mSpeed.getBundle())
-                    );
-                } catch (RemoteException e) {
-                    // The client is dead. Remove it from the list.
-                    mClients.remove(i);
-                }
+                notifyClient(mClients.get(i));
             }
 
             mHandler.postDelayed(this, 1000);
@@ -91,11 +83,13 @@ public final class IndicatorService extends Service {
                 if (mNotificationOnLockScreen
                         || (mKeyguardManager != null && !mKeyguardManager.isKeyguardLocked())) {
                     mIndicatorNotification.showNotification();
-                    restartUpdating();
+                    mIndicatorNotification.updateNotification(mSpeed);
+                    ensureUpdating();
                 }
             } else if (intent.getAction().equals(Intent.ACTION_USER_PRESENT)) {
                 mIndicatorNotification.showNotification();
-                restartUpdating();
+                mIndicatorNotification.updateNotification(mSpeed);
+                ensureUpdating();
             }
         }
     };
@@ -109,6 +103,8 @@ public final class IndicatorService extends Service {
                 switch (msg.what) {
                     case IndicatorServiceConnector.MSG_REGISTER_CLIENT:
                         mClients.add(msg.replyTo);
+                        notifyClient(msg.replyTo);
+                        ensureUpdating();
                         break;
                     case IndicatorServiceConnector.MSG_UNREGISTER_CLIENT:
                         mClients.remove(msg.replyTo);
@@ -143,8 +139,7 @@ public final class IndicatorService extends Service {
     public int onStartCommand(Intent intent, int flags, int startId) {
         handleConfigChange(intent.getExtras());
 
-        // TODO: don't restart if not needed
-        restartUpdating();
+        ensureUpdating();
 
         return START_REDELIVER_INTENT;
     }
@@ -161,6 +156,7 @@ public final class IndicatorService extends Service {
             mIndicatorNotification.start(this);
             mNotificationCreated = true;
         }
+        mIndicatorNotification.updateNotification(mSpeed);
     }
 
     private void removeNotification() {
@@ -174,11 +170,27 @@ public final class IndicatorService extends Service {
 
     private void pauseUpdating() {
         mHandler.removeCallbacks(mHandlerRunnable);
+        mIsUpdating = false;
     }
 
-    private void restartUpdating() {
-        mHandler.removeCallbacks(mHandlerRunnable);
-        mHandler.post(mHandlerRunnable);
+    private void ensureUpdating() {
+        if (!mIsUpdating) {
+            mHandler.post(mHandlerRunnable);
+            mIsUpdating = true;
+        }
+    }
+
+    private void notifyClient(Messenger client) {
+        try {
+            client.send(
+                    Message.obtain(null,
+                            IndicatorServiceConnector.MSG_UPDATE_SPEED,
+                            mSpeed.getBundle())
+            );
+        } catch (RemoteException e) {
+            // The client is dead. Remove it from the list.
+            mClients.remove(client);
+        }
     }
 
     private void handleConfigChange(Bundle config) {
