@@ -20,9 +20,7 @@ public final class IndicatorService extends Service {
     private long mLastTxBytes = 0;
     private long mLastTime = 0;
 
-    private HumanSpeed mTotalHumanSpeed;
-    private HumanSpeed mDownHumanSpeed;
-    private HumanSpeed mUpHumanSpeed;
+    private Speed mSpeed;
 
     private IndicatorNotification mIndicatorNotification;
 
@@ -46,11 +44,9 @@ public final class IndicatorService extends Service {
             mLastTxBytes = currentTxBytes;
             mLastTime = currentTime;
 
-            mTotalHumanSpeed.calcSpeed(usedRxBytes + usedTxBytes, usedTime);
-            mDownHumanSpeed.calcSpeed(usedRxBytes, usedTime);
-            mUpHumanSpeed.calcSpeed(usedTxBytes, usedTime);
+            mSpeed.calcSpeed(usedTime, usedRxBytes, usedTxBytes);
 
-            mIndicatorNotification.updateNotification(mTotalHumanSpeed, mDownHumanSpeed, mUpHumanSpeed);
+            mIndicatorNotification.updateNotification(mSpeed);
 
             mHandler.postDelayed(this, 1000);
         }
@@ -68,7 +64,7 @@ public final class IndicatorService extends Service {
                 if (!mNotificationOnLockScreen) {
                     mIndicatorNotification.hideNotification();
                 }
-                mIndicatorNotification.updateNotification(mTotalHumanSpeed, mDownHumanSpeed, mUpHumanSpeed);
+                mIndicatorNotification.updateNotification(mSpeed);
             } else if (intent.getAction().equals(Intent.ACTION_SCREEN_ON)) {
                 if (mNotificationOnLockScreen || !mKeyguardManager.isKeyguardLocked()) {
                     mIndicatorNotification.showNotification();
@@ -102,9 +98,7 @@ public final class IndicatorService extends Service {
         mLastTxBytes = TrafficStats.getTotalTxBytes();
         mLastTime = System.currentTimeMillis();
 
-        mTotalHumanSpeed = new HumanSpeed(this);
-        mDownHumanSpeed = new HumanSpeed(this);
-        mUpHumanSpeed = new HumanSpeed(this);
+        mSpeed = new Speed(this);
 
         mKeyguardManager = (KeyguardManager)getSystemService(Context.KEYGUARD_SERVICE);
 
@@ -165,9 +159,7 @@ public final class IndicatorService extends Service {
 
         // Speed unit, bps or Bps
         boolean isSpeedUnitBits = config.getString(Settings.KEY_INDICATOR_SPEED_UNIT, "Bps").equals("bps");
-        mTotalHumanSpeed.setIsSpeedUnitBits(isSpeedUnitBits);
-        mDownHumanSpeed.setIsSpeedUnitBits(isSpeedUnitBits);
-        mUpHumanSpeed.setIsSpeedUnitBits(isSpeedUnitBits);
+        mSpeed.setIsSpeedUnitBits(isSpeedUnitBits);
 
         // Pass it to notification
         mIndicatorNotification.handleConfigChange(config);
