@@ -49,6 +49,17 @@ final class Speed {
         updateHumanSpeeds();
     }
 
+    HumanSpeed getHumanSpeed(String name) {
+        switch (name) {
+            case "up":
+                return up;
+            case "down":
+                return down;
+            default:
+                return total;
+        }
+    }
+
     void setIsSpeedUnitBits(boolean isSpeedUnitBits) {
         mIsSpeedUnitBits = isSpeedUnitBits;
     }

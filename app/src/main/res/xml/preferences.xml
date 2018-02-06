@@ -19,6 +19,14 @@
             android:defaultValue="false" />
 
         <ListPreference
+            android:key="indicatorSpeedToShow"
+            android:title="@string/pref_indicator_speed_to_show"
+            android:summary="%s"
+            android:entries="@array/indicator_speeds_titles"
+            android:entryValues="@array/indicator_speeds_values"
+            android:defaultValue="total" />
+
+        <ListPreference
             android:key="notificationPriority"
             android:title="@string/pref_notification_priority_title"
             android:summary="%s"

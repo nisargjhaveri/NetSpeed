@@ -1,5 +1,16 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
+    <string-array name="indicator_speeds_titles">
+        <item>@string/pref_indicator_speed_total</item>
+        <item>@string/pref_indicator_speed_down</item>
+        <item>@string/pref_indicator_speed_up</item>
+    </string-array>
+    <string-array name="indicator_speeds_values">
+        <item>total</item>
+        <item>down</item>
+        <item>up</item>
+    </string-array>
+
     <string-array name="notification_priority_titles">
         <item>@string/pref_notification_priority_max</item>
         <item>@string/pref_notification_priority_high</item>

@@ -37,6 +37,7 @@ final class IndicatorNotification {
     private Notification.Builder mNotificationBuilder;
 
     private int mNotificationPriority;
+    private String mSpeedToShow = "total";
 
     IndicatorNotification(Context context) {
         mContext = context;
@@ -61,8 +62,9 @@ final class IndicatorNotification {
     }
 
     void updateNotification(Speed speed) {
+        Speed.HumanSpeed speedToShow = speed.getHumanSpeed(mSpeedToShow);
         mNotificationBuilder.setSmallIcon(
-                getIndicatorIcon(speed.total.speedValue, speed.total.speedUnit)
+                getIndicatorIcon(speedToShow.speedValue, speedToShow.speedUnit)
         );
 
         RemoteViews contentView = mNotificationContentView.clone();
@@ -82,6 +84,9 @@ final class IndicatorNotification {
     }
 
     void handleConfigChange(Bundle extras) {
+        // Which speed to show in indicator icon
+        mSpeedToShow = extras.getString(Settings.KEY_INDICATOR_SPEED_TO_SHOW, "total");
+
         // Show/Hide settings button
         if (extras.getBoolean(Settings.KEY_SHOW_SETTINGS_BUTTON, false)) {
             mNotificationContentView.setViewVisibility(R.id.notificationSettings, View.VISIBLE);
