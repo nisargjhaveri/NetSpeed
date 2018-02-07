@@ -19,6 +19,9 @@ android {
         debug {
             applicationIdSuffix ".debug"
         }
+        all {
+            resValue 'string', 'version_name', defaultConfig.versionName
+        }
     }
 }
 

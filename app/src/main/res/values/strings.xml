@@ -9,6 +9,10 @@
     <string name="plus99">99+</string>
     <string name="dash">-</string>
 
+    <!-- Option menu -->
+    <string name="rate_app">Rate this app</string>
+    <string name="about">About</string>
+
     <!-- Notification Layout -->
     <string name="notif_notification_icon">Notification Icon</string>
     <string name="notif_settings_button">Settings Button</string>
