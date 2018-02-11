@@ -4,6 +4,7 @@ import android.content.ActivityNotFoundException;
 import android.content.Context;
 import android.content.Intent;
 import android.net.Uri;
+import android.os.Build;
 
 public final class AboutAppHelper {
 
@@ -28,10 +29,19 @@ public final class AboutAppHelper {
     }
 
     public static void sendFeedback(Context context) {
-        Intent intent = new Intent(Intent.ACTION_SENDTO);
-        intent.setData(Uri.parse("mailto:")); // only email apps should handle this
+        String debugInfo = "\n\n\n---";
+        debugInfo += "\nOS Version: " + System.getProperty("os.version") + " (" + Build.VERSION.INCREMENTAL + ")";
+        debugInfo += "\nAndroid API: " + Build.VERSION.SDK_INT;
+        debugInfo += "\nModel (Device): " + Build.MODEL + " ("+ Build.DEVICE + ")";
+        debugInfo += "\nManufacturer: " + Build.MANUFACTURER;
+        debugInfo += "\n---";
+
+        Intent intent = new Intent(Intent.ACTION_SENDTO,
+                Uri.fromParts("mailto", context.getString(R.string.feedback_email), null));
+
         intent.putExtra(Intent.EXTRA_EMAIL, context.getString(R.string.feedback_email));
         intent.putExtra(Intent.EXTRA_SUBJECT, context.getString(R.string.feedback_subject));
+        intent.putExtra(Intent.EXTRA_TEXT, debugInfo);
 
         context.startActivity(Intent.createChooser(intent, "Send feedback using..."));
     }

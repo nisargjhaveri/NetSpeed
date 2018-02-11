@@ -16,7 +16,7 @@
     <!-- About -->
     <string name="send_feedback">Send feedback</string>
     <string name="feedback_email" translatable="false">netspeed.indicator@gmail.com</string>
-    <string name="feedback_subject">Feedback about NetSpeed Indicator</string>
+    <string name="feedback_subject">Feedback about NetSpeed Indicator App</string>
     <string name="made_with_love_in_india">Made with ❤️ in India</string>
 
     <!-- Notification Layout -->
