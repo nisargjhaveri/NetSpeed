@@ -23,7 +23,7 @@
     <string name="notif_notification_icon">Notification Icon</string>
     <string name="notif_settings_button">Settings Button</string>
 
-    <string name="notif_up_down_speed">Down: %s %s     Up: %s %s</string>
+    <string name="notif_up_down_speed">Down: %s %s "   " Up: %s %s</string>
 
     <!-- Settings -->
     <string name="pref_enable_indicator_title">Enable indicator</string>
