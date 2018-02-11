@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <dimen name="about_link_height">55dp</dimen>
+    <dimen name="about_link_padding">25dp</dimen>
+    <dimen name="about_link_text_size">16sp</dimen>
+    <dimen name="separator_height">1dp</dimen>
+    <dimen name="separator_horizontal_margin">10dp</dimen>
+</resources>

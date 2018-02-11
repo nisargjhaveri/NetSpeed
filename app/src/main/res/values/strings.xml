@@ -10,8 +10,14 @@
     <string name="dash">-</string>
 
     <!-- Option menu -->
-    <string name="rate_app">Rate this app</string>
     <string name="about">About</string>
+    <string name="rate_this_app">Rate this app</string>
+
+    <!-- About -->
+    <string name="send_feedback">Send feedback</string>
+    <string name="feedback_email" translatable="false">netspeed.indicator@gmail.com</string>
+    <string name="feedback_subject">Feedback about NetSpeed Indicator</string>
+    <string name="made_with_love_in_india">Made with ❤️ in India</string>
 
     <!-- Notification Layout -->
     <string name="notif_notification_icon">Notification Icon</string>
