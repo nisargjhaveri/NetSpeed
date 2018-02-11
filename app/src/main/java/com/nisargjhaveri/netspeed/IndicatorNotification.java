@@ -70,6 +70,16 @@ final class IndicatorNotification {
         RemoteViews contentView = mNotificationContentView.clone();
 
         contentView.setTextViewText(
+                R.id.notificationSpeedValue,
+                speedToShow.speedValue
+        );
+
+        contentView.setTextViewText(
+                R.id.notificationSpeedUnit,
+                speedToShow.speedUnit
+        );
+
+        contentView.setTextViewText(
                 R.id.notificationText,
                 String.format(
                         Locale.ENGLISH, mContext.getString(R.string.notif_up_down_speed),
@@ -123,7 +133,6 @@ final class IndicatorNotification {
         setupIndicatorIconGenerator();
 
         mNotificationContentView = new RemoteViews(mContext.getPackageName(), R.layout.view_indicator_notification);
-        mNotificationContentView.setImageViewBitmap(R.id.notificationIcon, mIconBitmap);
 
         PendingIntent openSettingsIntent = PendingIntent.getActivity(mContext, 0, new Intent(mContext, SettingsActivity.class), 0);
         mNotificationContentView.setOnClickPendingIntent(R.id.notificationSettings, openSettingsIntent);
@@ -140,18 +149,20 @@ final class IndicatorNotification {
 
     private void setupIndicatorIconGenerator() {
         mIconSpeedPaint = new Paint();
+        mIconSpeedPaint.setColor(Color.WHITE);
         mIconSpeedPaint.setAntiAlias(true);
         mIconSpeedPaint.setTextSize(65);
         mIconSpeedPaint.setTextAlign(Paint.Align.CENTER);
         mIconSpeedPaint.setTypeface(Typeface.create("sans-serif-condensed", Typeface.BOLD));
 
         mIconUnitPaint = new Paint();
+        mIconUnitPaint.setColor(Color.WHITE);
         mIconUnitPaint.setAntiAlias(true);
         mIconUnitPaint.setTextSize(40);
         mIconUnitPaint.setTextAlign(Paint.Align.CENTER);
         mIconUnitPaint.setTypeface(Typeface.DEFAULT_BOLD);
 
-        mIconBitmap = Bitmap.createBitmap(96, 96, Bitmap.Config.ALPHA_8);
+        mIconBitmap = Bitmap.createBitmap(96, 96, Bitmap.Config.ARGB_8888);
 
         mIconCanvas = new Canvas(mIconBitmap);
     }
