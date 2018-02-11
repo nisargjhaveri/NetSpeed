@@ -40,7 +40,7 @@
     <string name="pref_notification_priority_default">Normal</string>
     <string name="pref_notification_priority_low">Low</string>
 
-    <string name="pref_indicator_speed_to_show">Speed to show in status bar icon</string>
+    <string name="pref_indicator_speed_to_show">Speed to show in indicator icon</string>
     <string name="pref_indicator_speed_total">Total speed</string>
     <string name="pref_indicator_speed_down">Download speed</string>
     <string name="pref_indicator_speed_up">Upload speed</string>
